@@ -1,0 +1,10 @@
+node_modules/
+dist/
+src/routeTree.gen.ts
+.netlify/
+.tanstack/
+.DS_Store
+*.local
+.env
+.env.*
+!.env.example
