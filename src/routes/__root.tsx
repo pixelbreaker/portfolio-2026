@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
+import { Lasso } from '../components/Lasso'
 import { themeInitializationScript, useTheme } from '../use-theme'
 import stylesHref from '../styles.css?url'
 
@@ -43,6 +44,7 @@ function Shell({ children }: { children: React.ReactNode }) {
         <ThemeToggle />
       </header>
       {children}
+      <Lasso />
       {import.meta.env.DEV && <TanStackRouterDevtools />}
     </div>
   )
