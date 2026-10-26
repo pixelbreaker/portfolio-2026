@@ -15,6 +15,7 @@
   --color-background: light-dark(#f7f7f5, #171717);
   --color-surface: light-dark(#ffffff, #242424);
   --color-text: light-dark(#171717, #f1f1ed);
+  --color-text-fade: light-dark(#393939, #d0d0cb);
   --color-muted: light-dark(#666666, #b5b5ae);
   --color-border: light-dark(#d9d9d2, #44443e);
   --color-accent: light-dark(#3657d6, #9eafff);
@@ -97,6 +98,12 @@ a:focus-visible {
 
 .site-header a {
   padding: var(--space-1);
+  text-transform: lowercase;
+}
+
+.site-header a:before {
+  content: '/';
+  color: var(--color-text-fade);
 }
 
 .site-nav {

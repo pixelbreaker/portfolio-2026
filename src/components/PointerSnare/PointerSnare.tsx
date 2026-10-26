@@ -9,14 +9,14 @@ const SNARE_PAD = 8 // 0.5rem clearance around a snared element
 const MIN_SPAN = 4
 const TICK_HALF = 1.5 // half the tick length; matches CSS .pointer-snare-tick
 
-const LEAD_RATE = 0.9
+const LEAD_RATE = 0.8
 const LEAD_FRICTION = 0.2
 const TRAIL_RATE = 0.03
 const TRAIL_FRICTION = 0.6
 
 // Snared edges don't chase the pointer: they ease onto the padded
 // element box, so they get their own slower, weighted tuning.
-const SNARE_RATE = 0.05
+const SNARE_RATE = 0.06
 const SNARE_FRICTION = 0.6
 
 // Each edge's rate/friction are themselves eased, so reversing direction
@@ -166,7 +166,9 @@ export function PointerSnare() {
       if (target) {
         for (const edge of edges) {
           edge.targetRate = SNARE_RATE
+          edge.rate = SNARE_RATE
           edge.targetFriction = SNARE_FRICTION
+          edge.friction = SNARE_FRICTION
         }
         return
       }
