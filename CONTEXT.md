@@ -29,3 +29,7 @@ _Avoid_: Control, actionable, target
 **Cursor Dot**:
 The dot that stands in for the native cursor while the PointerSnare is free.
 _Avoid_: Fake cursor, reticle
+
+**Tick**:
+The full-contrast mark on the PointerSnare's border where the visitor's cursor axes cross it; it tracks the raw cursor and is never eased.
+_Avoid_: Marker, crosshair, notch

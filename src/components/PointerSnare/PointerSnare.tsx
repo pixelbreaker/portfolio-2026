@@ -7,6 +7,7 @@ const SNARE_SELECTOR = 'a, button'
 const FREE_HALF = 16 // half the free ring size; matches CSS .pointer-snare
 const SNARE_PAD = 8 // 0.5rem clearance around a snared element
 const MIN_SPAN = 4
+const TICK_HALF = 1.5 // half the tick length; matches CSS .pointer-snare-tick
 
 const LEAD_RATE = 0.9
 const LEAD_FRICTION = 0.2
@@ -15,8 +16,8 @@ const TRAIL_FRICTION = 0.6
 
 // Snared edges don't chase the pointer: they ease onto the padded
 // element box, so they get their own slower, weighted tuning.
-const SNARE_RATE = 0.1
-const SNARE_FRICTION = 0.4
+const SNARE_RATE = 0.05
+const SNARE_FRICTION = 0.6
 
 // Each edge's rate/friction are themselves eased, so reversing direction
 // (which swaps an edge between leading and trailing) never snaps it.
@@ -75,11 +76,27 @@ function step(edge: Edge): boolean {
 export function PointerSnare() {
   const ref = useRef<HTMLDivElement>(null)
   const dotRef = useRef<HTMLDivElement>(null)
+  const leftTickRef = useRef<HTMLDivElement>(null)
+  const rightTickRef = useRef<HTMLDivElement>(null)
+  const topTickRef = useRef<HTMLDivElement>(null)
+  const bottomTickRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const el = ref.current
     const dot = dotRef.current
-    if (!el || !dot || !window.matchMedia(POINTER_QUERY).matches) {
+    const leftTick = leftTickRef.current
+    const rightTick = rightTickRef.current
+    const topTick = topTickRef.current
+    const bottomTick = bottomTickRef.current
+    if (
+      !el ||
+      !dot ||
+      !leftTick ||
+      !rightTick ||
+      !topTick ||
+      !bottomTick ||
+      !window.matchMedia(POINTER_QUERY).matches
+    ) {
       return
     }
     const root = document.documentElement
@@ -97,12 +114,29 @@ export function PointerSnare() {
     let y = window.innerHeight / 2
     let target: Element | null = null
 
+    // Ticks sit where the pointer's axes cross the border. They read the
+    // raw cursor, not the eased edges, so they never lag behind it; they
+    // are clamped to the border segment so they stay on the ring.
+    const paintTicks = () => {
+      const l = left.current
+      const r = Math.max(right.current, l + MIN_SPAN)
+      const t = top.current
+      const b = Math.max(bottom.current, t + MIN_SPAN)
+      const cx = Math.min(Math.max(x, l), r - 1)
+      const cy = Math.min(Math.max(y, t), b - 1)
+      leftTick.style.transform = `translate3d(${l}px, ${cy - TICK_HALF}px, 0)`
+      rightTick.style.transform = `translate3d(${r - 1}px, ${cy - TICK_HALF}px, 0)`
+      topTick.style.transform = `translate3d(${cx - TICK_HALF}px, ${t}px, 0)`
+      bottomTick.style.transform = `translate3d(${cx - TICK_HALF}px, ${b - 1}px, 0)`
+    }
+
     const paint = () => {
       const w = Math.max(right.current - left.current, MIN_SPAN)
       const h = Math.max(bottom.current - top.current, MIN_SPAN)
       el.style.width = `${w}px`
       el.style.height = `${h}px`
       el.style.transform = `translate3d(${left.current}px, ${top.current}px, 0)`
+      paintTicks()
     }
 
     const setPointerEnds = () => {
@@ -185,6 +219,10 @@ export function PointerSnare() {
       // Dot replaces the native cursor only outside interactive
       // elements; over a link/button the real pointer cursor returns.
       dot.style.transform = `translate3d(${x}px, ${y}px, 0)`
+
+      // Ticks also paint here: when the ring is settled no frame runs,
+      // and they must still track the cursor exactly.
+      paintTicks()
       const dotVisible = !hit
       dot.classList.toggle('pointer-snare-dot--visible', dotVisible)
       root.classList.toggle('pointer-snare-cursor-none', dotVisible)
@@ -208,6 +246,26 @@ export function PointerSnare() {
     <>
       <div className="pointer-snare" ref={ref} />
       <div aria-hidden="true" className="pointer-snare-dot" ref={dotRef} />
+      <div
+        aria-hidden="true"
+        className="pointer-snare-tick pointer-snare-tick--left"
+        ref={leftTickRef}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-snare-tick pointer-snare-tick--right"
+        ref={rightTickRef}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-snare-tick pointer-snare-tick--top"
+        ref={topTickRef}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-snare-tick pointer-snare-tick--bottom"
+        ref={bottomTickRef}
+      />
     </>
   )
 }

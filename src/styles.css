@@ -66,6 +66,10 @@ a {
   font: inherit;
 }
 
+a {
+  text-decoration: none;
+}
+
 button {
   color: inherit;
 }
@@ -91,6 +95,10 @@ a:focus-visible {
   padding: var(--space-2) 0;
 }
 
+.site-header a {
+  padding: var(--space-1);
+}
+
 .site-nav {
   display: flex;
   flex-wrap: wrap;
@@ -102,14 +110,11 @@ a:focus-visible {
 
 .site-nav a {
   color: var(--color-muted);
-  text-decoration: none;
 }
 
 .site-nav a:hover,
 .site-nav a[aria-current='page'] {
   color: var(--color-accent);
-  text-decoration: underline;
-  text-underline-offset: 0.25em;
 }
 
 .theme-toggle {
@@ -120,12 +125,6 @@ a:focus-visible {
 .text-link {
   color: var(--color-text);
   font-weight: 600;
-  text-decoration-thickness: 0.1em;
-  text-underline-offset: 0.2em;
-}
-
-.site-brand {
-  text-decoration: none;
 }
 
 .theme-toggle {
@@ -255,7 +254,6 @@ a:focus-visible {
 
 .prose a {
   color: var(--color-accent);
-  text-decoration: underline;
 }
 
 .prose code {

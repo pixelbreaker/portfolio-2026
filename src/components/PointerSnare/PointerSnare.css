@@ -2,6 +2,10 @@
   display: none;
 }
 
+.pointer-snare-tick {
+  display: none;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .pointer-snare {
     display: block;
@@ -14,6 +18,30 @@
     pointer-events: none;
     will-change: transform;
     transition: border-color 180ms ease;
+  }
+
+  /* Full-contrast ticks where the pointer's axes cross the border;
+     positioned per-frame from the raw cursor, so they never lag. */
+  .pointer-snare-tick {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: light-dark(#000000, #ffffff);
+    pointer-events: none;
+    will-change: transform;
+  }
+
+  .pointer-snare-tick--left,
+  .pointer-snare-tick--right {
+    width: 1px;
+    height: 3px;
+  }
+
+  .pointer-snare-tick--top,
+  .pointer-snare-tick--bottom {
+    width: 3px;
+    height: 1px;
   }
 
   .pointer-snare-dot {
@@ -43,6 +71,6 @@
   }
 
   .pointer-snare--snared {
-    border-color: var(--color-accent);
+    border-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
   }
 }
