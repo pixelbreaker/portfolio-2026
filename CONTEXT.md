@@ -33,3 +33,9 @@ _Avoid_: Fake cursor, reticle
 **Tick**:
 The full-contrast mark on the PointerSnare's border where the visitor's cursor axes cross it; it tracks the raw cursor and is never eased.
 _Avoid_: Marker, crosshair, notch
+
+## Splash intro
+
+**SplashIntro**:
+The one-per-session PIXELBREAKER overlay in which the PIXEL letters drop in from above and BREAKER from below, hold, then slide back out the way they came.
+_Avoid_: Splash screen, intro animation, loader

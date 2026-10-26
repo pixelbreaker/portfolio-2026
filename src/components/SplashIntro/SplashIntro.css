@@ -1,0 +1,111 @@
+/* PIXELBREAKER splash, ported from the Gatsby site: PIXEL drops in from
+   above, BREAKER from below, hold, then both halves slide back out. */
+.splash-intro {
+  align-items: center;
+  background: var(--color-background);
+  color: var(--color-text);
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+  transition: opacity 300ms ease;
+  z-index: 100;
+}
+
+.splash-intro--fade {
+  opacity: 0;
+}
+
+.splash-intro-logo {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.splash-intro-row {
+  display: flex;
+  margin-bottom: 5px;
+}
+
+.splash-intro-letter {
+  display: block;
+  height: 38px;
+  margin-bottom: -1px;
+  margin-right: 2px;
+  transform: translateZ(0);
+}
+
+.splash-intro-letter svg {
+  display: block;
+  height: 38px;
+  width: auto;
+}
+
+@keyframes splash-intro-top {
+  from {
+    transform: translateZ(0) translateY(-60vh);
+  }
+
+  to {
+    transform: translateZ(0) translateY(0);
+  }
+}
+
+@keyframes splash-intro-bottom {
+  from {
+    transform: translateZ(0) translateY(60vh);
+  }
+
+  to {
+    transform: translateZ(0) translateY(0);
+  }
+}
+
+@keyframes splash-outro-top {
+  from {
+    transform: translateZ(0) translateY(0);
+  }
+
+  to {
+    transform: translateZ(0) translateY(-60vh);
+  }
+}
+
+@keyframes splash-outro-bottom {
+  from {
+    transform: translateZ(0) translateY(0);
+  }
+
+  to {
+    transform: translateZ(0) translateY(60vh);
+  }
+}
+
+/* fill-mode both holds each letter at its "from" position during the
+   randomized per-letter delay, then keeps the exit transform until the
+   overlay unmounts. */
+.splash-intro-letter.intro-top {
+  animation: splash-intro-top 1s ease both;
+}
+
+.splash-intro-letter.intro-bottom {
+  animation: splash-intro-bottom 1s ease both;
+}
+
+.splash-intro-letter.outro-top {
+  animation: splash-outro-top 1s ease both;
+}
+
+.splash-intro-letter.outro-bottom {
+  animation: splash-outro-bottom 1s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-intro {
+    display: none;
+  }
+}

@@ -8,6 +8,7 @@ import {
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import { PointerSnare } from '../components/PointerSnare'
+import { SplashIntro } from '../components/SplashIntro'
 import { themeInitializationScript, useTheme } from '../use-theme'
 import stylesHref from '../styles.css?url'
 
@@ -44,6 +45,7 @@ function Shell({ children }: { children: React.ReactNode }) {
         <ThemeToggle />
       </header>
       {children}
+      <SplashIntro />
       <PointerSnare />
       {import.meta.env.DEV && <TanStackRouterDevtools />}
     </div>
