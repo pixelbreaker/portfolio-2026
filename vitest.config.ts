@@ -8,5 +8,9 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['src/test-setup.ts'],
+    // Process CSS so `?url` imports (stylesHref in __root.tsx) resolve to a
+    // real URL; without this they return "", and React rejects empty href on
+    // the hoisted stylesheet link TanStack Start renders.
+    css: true,
   },
 })
