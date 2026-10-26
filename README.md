@@ -22,6 +22,10 @@ Routes live in `src/routes`. TanStack Start uses the router factory in `src/rout
 
 Global styles and tokens live in `src/styles.css`. The root route declares the Inter Google Fonts link and runs a small theme script before the first body paint. A saved `portfolio-theme` preference takes precedence over the system setting. React keeps a neutral initial snapshot during hydration so it does not overwrite that pre-paint choice. CSS `color-scheme` and `light-dark()` also follow the system theme when JavaScript is disabled.
 
+## Pages and content
+
+The main navigation links to `/about`, `/case-studies`, and `/projects`. Case studies and projects each have a listing and individual pages at `/case-studies/:slug` and `/projects/:slug`. To publish another page, add an entry with a unique slug, title, summary, and sections to the corresponding array in `src/work.ts`. The listing and detail route use the same entry; an unknown slug returns a 404. The initial examples document this portfolio and its server-rendering decision.
+
 ## Commit messages
 
 The `prepare` script installs the Husky `commit-msg` hook. After installing dependencies on a fresh clone, run `pnpm prepare` if your installer skips lifecycle scripts. Commitlint enforces Conventional Commits using `@commitlint/config-conventional`:

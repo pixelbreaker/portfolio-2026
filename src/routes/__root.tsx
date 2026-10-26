@@ -28,6 +28,25 @@ function Shell({ children }: { children: React.ReactNode }) {
         <Link className="site-brand" to="/">
           Portfolio
         </Link>
+        <nav className="site-nav" aria-label="Main navigation">
+          <Link to="/about" activeProps={{ 'aria-current': 'page' }}>
+            About
+          </Link>
+          <Link
+            to="/case-studies"
+            activeOptions={{ exact: false }}
+            activeProps={{ 'aria-current': 'page' }}
+          >
+            Case studies
+          </Link>
+          <Link
+            to="/projects"
+            activeOptions={{ exact: false }}
+            activeProps={{ 'aria-current': 'page' }}
+          >
+            Projects
+          </Link>
+        </nav>
         <ThemeToggle />
       </header>
       {children}

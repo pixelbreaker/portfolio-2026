@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
   component: HomePage,
@@ -6,8 +6,24 @@ export const Route = createFileRoute('/')({
 
 function HomePage() {
   return (
-    <section className="empty-state" aria-labelledby="home-title">
-      <h1 id="home-title">Portfolio coming soon</h1>
+    <section className="content-page home-page" aria-labelledby="home-title">
+      <p className="eyebrow">Portfolio</p>
+      <h1 id="home-title">Work, and the thinking behind it.</h1>
+      <p className="page-intro">
+        Explore projects, read the stories behind the decisions, and learn more
+        about this portfolio.
+      </p>
+      <div className="page-actions">
+        <Link className="text-link" to="/projects">
+          View projects
+        </Link>
+        <Link className="text-link" to="/case-studies">
+          Read case studies
+        </Link>
+        <Link className="text-link" to="/about">
+          About
+        </Link>
+      </div>
     </section>
   )
 }
