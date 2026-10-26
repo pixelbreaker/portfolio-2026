@@ -33,13 +33,6 @@ function Shell({ children }: { children: React.ReactNode }) {
             About
           </Link>
           <Link
-            to="/case-studies"
-            activeOptions={{ exact: false }}
-            activeProps={{ 'aria-current': 'page' }}
-          >
-            Case studies
-          </Link>
-          <Link
             to="/projects"
             activeOptions={{ exact: false }}
             activeProps={{ 'aria-current': 'page' }}

@@ -22,9 +22,22 @@ Routes live in `src/routes`. TanStack Start uses the router factory in `src/rout
 
 Global styles and tokens live in `src/styles.css`. The root route declares the Inter Google Fonts link and runs a small theme script before the first body paint. A saved `portfolio-theme` preference takes precedence over the system setting. React keeps a neutral initial snapshot during hydration so it does not overwrite that pre-paint choice. CSS `color-scheme` and `light-dark()` also follow the system theme when JavaScript is disabled.
 
+## Tests
+
+```sh
+pnpm test
+```
+
+Vitest runs in jsdom with Testing Library. Two suites cover the content paths: `src/markdown.test.tsx` asserts the markdown renderer's GFM markup and that raw HTML is not rendered, and `src/tests/project-pages.test.tsx` resolves each example project (markdown and component) through the real route tree and renders the same server-rendered HTML string production serves, including the 404 for unknown slugs. Tests live outside `src/routes` so the route generator ignores them.
+
 ## Pages and content
 
-The main navigation links to `/about`, `/case-studies`, and `/projects`. Case studies and projects each have a listing and individual pages at `/case-studies/:slug` and `/projects/:slug`. To publish another page, add an entry with a unique slug, title, summary, and sections to the corresponding array in `src/work.ts`. The listing and detail route use the same entry; an unknown slug returns a 404. The initial examples document this portfolio and its server-rendering decision.
+The main navigation links to `/about` and `/projects`. Projects have a listing and an individual page at `/projects/:slug`. To publish a project, add an entry with a unique slug, title, and summary to the `projects` array in `src/work.ts`, and give it a body in one of two forms:
+
+- **Markdown**: write `src/content/<slug>.md`, import it in `src/work.ts` with `?raw`, and set `body` to `{ kind: 'markdown', source }`. It renders with GFM extensions (tables, task lists, strikethrough, autolinks); raw HTML in the markdown is not rendered.
+- **React component**: add `src/content/<slug>.tsx` with a default-exported component and set `body` to `{ kind: 'component', component }`. The page shell still renders the title and summary; the component owns everything below and can use any React feature for custom layouts or experiments.
+
+The listing and detail route use the same entry; an unknown slug returns a 404. The initial examples document this portfolio and its server-rendering decision, one in each body form.
 
 ## Commit messages
 

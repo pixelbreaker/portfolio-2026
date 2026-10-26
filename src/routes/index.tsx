@@ -10,15 +10,12 @@ function HomePage() {
       <p className="eyebrow">Portfolio</p>
       <h1 id="home-title">Work, and the thinking behind it.</h1>
       <p className="page-intro">
-        Explore projects, read the stories behind the decisions, and learn more
-        about this portfolio.
+        Explore projects, learn about the work, and find out more about this
+        portfolio.
       </p>
       <div className="page-actions">
         <Link className="text-link" to="/projects">
           View projects
-        </Link>
-        <Link className="text-link" to="/case-studies">
-          Read case studies
         </Link>
         <Link className="text-link" to="/about">
           About

@@ -1,44 +1,40 @@
-export type WorkEntry = {
+import type { ComponentType } from 'react'
+
+import portfolioMarkdown from './content/portfolio-2026.md?raw'
+import ServerRenderedPortfolio from './content/server-rendered-portfolio'
+
+export type Project = {
   slug: string
   title: string
   summary: string
-  sections: { heading: string; body: string }[]
+  body: ProjectBody
 }
 
-// Add entries here to publish new projects and case studies at their slug URLs.
-export const projects: WorkEntry[] = [
+// A project body is either markdown prose or a React component for custom
+// layouts and experiments. Component bodies render with the same page shell
+// (title, summary, container width) and never travel through loader data.
+export type ProjectBody =
+  | { kind: 'markdown'; source: string }
+  | { kind: 'component'; component: ComponentType }
+
+// Add an entry here to publish a project at /projects/<slug>. Put the markdown
+// file or component in src/content/ and import it above.
+export const projects: Project[] = [
   {
     slug: 'portfolio-2026',
     title: 'Portfolio 2026',
     summary: 'A server-rendered portfolio built with TanStack Start and React.',
-    sections: [
-      {
-        heading: 'What it is',
-        body: 'This portfolio brings projects and case studies together in a single place, with a page for each piece of work.',
-      },
-      {
-        heading: 'How it works',
-        body: 'TanStack Start handles file-based routing and server-rendered requests. The site includes a theme preference that follows the system setting unless a visitor chooses otherwise.',
-      },
-    ],
+    body: { kind: 'markdown', source: portfolioMarkdown },
   },
-]
-
-export const caseStudies: WorkEntry[] = [
   {
     slug: 'server-rendered-portfolio',
     title: 'Choosing server rendering for the portfolio',
     summary:
       'Why this portfolio uses TanStack Start and the Netlify server adapter instead of a static SPA rewrite.',
-    sections: [
-      {
-        heading: 'The decision',
-        body: 'The portfolio serves document requests through TanStack Start. Netlify publishes the client assets while routing runtime requests through its server function.',
-      },
-      {
-        heading: 'The tradeoff',
-        body: 'A static single-page app rewrite would be simpler, but it would give up server-rendered document requests and the option to add server routes later. The server adapter preserves both.',
-      },
-    ],
+    body: { kind: 'component', component: ServerRenderedPortfolio },
   },
 ]
+
+export function getProject(slug: string): Project | undefined {
+  return projects.find((project) => project.slug === slug)
+}
