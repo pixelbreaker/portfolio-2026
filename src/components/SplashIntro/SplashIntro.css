@@ -1,6 +1,21 @@
 /* PIXELBREAKER splash, ported from the Gatsby site: PIXEL drops in from
-   above, BREAKER from below, hold, then both halves slide back out. */
+   above, BREAKER from below, hold, then both halves slide back out. The
+   overlay markup is server-rendered on every page; an inline script in
+   <head> settles the once-per-session decision before the first body paint,
+   marking the document data-splash='seen' or 'show' (see SplashIntro.tsx).
+   These rules are what actually gate visibility, so the animation never
+   runs for repeat visits and the page underneath never flashes. */
+
+/* Unmarked (scripting off) or already seen: never paint the overlay. */
 .splash-intro {
+  display: none;
+}
+
+:root[data-splash='seen'] .splash-intro {
+  display: none;
+}
+
+:root[data-splash='show'] .splash-intro {
   align-items: center;
   background: var(--color-background);
   color: var(--color-text);
@@ -8,6 +23,9 @@
   display: flex;
   justify-content: center;
   left: 0;
+  /* The overlay paints before hydration, so it must never trap the page:
+     if the bundle fails to load, nothing would ever dismiss it. */
+  pointer-events: none;
   position: fixed;
   right: 0;
   top: 0;
@@ -85,9 +103,10 @@
   }
 }
 
-/* fill-mode both holds each letter at its "from" position during the
-   randomized per-letter delay, then keeps the exit transform until the
-   overlay unmounts. */
+/* fill-mode both parks each letter at its "from" position across its
+   stagger window, then keeps the exit transform, so the hold and the
+   fade-out window need no extra transforms. Delay/duration are inline
+   styles, identical on server and client renders. */
 .splash-intro-letter.intro-top {
   animation: splash-intro-top 1s ease both;
 }

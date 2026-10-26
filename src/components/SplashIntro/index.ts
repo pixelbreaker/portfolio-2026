@@ -1,1 +1,1 @@
-export { SplashIntro } from './SplashIntro'
+export { SplashIntro, splashInitializationScript } from './SplashIntro'

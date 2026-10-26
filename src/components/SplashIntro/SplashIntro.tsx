@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import './SplashIntro.css'
 
@@ -12,7 +12,26 @@ import logoP from './logo-p.svg?raw'
 import logoR from './logo-r.svg?raw'
 import logoX from './logo-x.svg?raw'
 
-const SESSION_KEY = 'portfolio-splash-seen'
+export const SESSION_KEY = 'portfolio-splash-seen'
+
+// Runs in the document head, before the first body paint, settling the
+// once-per-session decision while nothing is on screen yet. The overlay
+// markup itself is server-rendered on every page (this is what keeps a first
+// visit from flashing the page underneath), so the script either stamps the
+// flag and marks data-splash='show', or — when the flag already exists —
+// marks data-splash='seen', a CSS rule that hides the overlay before the
+// body ever paints, so no animation and no overlay show for repeat visits.
+// Mirrors the head-side theme script in ../use-theme.
+export const splashInitializationScript = `(() => {
+  let seen = false;
+  try {
+    seen = sessionStorage.getItem('${SESSION_KEY}') !== null;
+    if (!seen) sessionStorage.setItem('${SESSION_KEY}', '1');
+  } catch {
+    // Storage unavailable (private mode): still show once per load.
+  }
+  document.documentElement.dataset.splash = seen ? 'seen' : 'show';
+})();`
 
 const GLYPHS = {
   p: logoP,
@@ -54,63 +73,47 @@ const FADE_DURATION = 300
 
 type Phase = 'intro' | 'outro' | 'fade'
 
-// Randomized per letter, but generated once so intro and outro reuse the
-// same rhythm instead of reshuffling mid-animation.
+// The overlay is server-rendered, so per-letter inline styles ship in the
+// HTML and must match the client pass exactly — Math.random() would
+// desynchronize the two and force React to discard/re-render every letter,
+// seeking the running animations mid-flight. A coprime stride staggers the
+// letters deterministically; each keeps its rhythm through the outro.
 const MAX_STAGGER = 400
-const MAX_DURATION = 800
+const STAGGER_STRIDE = 137
+const BASE_DURATION = 520
+const MAX_EXTRA_DURATION = 240
+const DURATION_STRIDE = 61
 
-function randomTiming(): React.CSSProperties {
+function letterTiming(index: number): React.CSSProperties {
   return {
-    animationDelay: `${Math.floor(Math.random() * MAX_STAGGER)}ms`,
-    animationDuration: `${300 + Math.floor(Math.random() * MAX_DURATION)}ms`,
+    animationDelay: `${(index * STAGGER_STRIDE) % MAX_STAGGER}ms`,
+    animationDuration: `${
+      BASE_DURATION + ((index * DURATION_STRIDE) % MAX_EXTRA_DURATION)
+    }ms`,
   }
-}
-
-function noSubscription() {
-  return () => {}
-}
-
-// The session flag is read (and stamped) exactly once; the cached snapshot
-// keeps useSyncExternalStore stable across re-renders.
-let splashSnapshot: boolean | null = null
-
-function getSplashSnapshot(): boolean {
-  if (splashSnapshot === null) {
-    try {
-      splashSnapshot = sessionStorage.getItem(SESSION_KEY) === null
-      sessionStorage.setItem(SESSION_KEY, '1')
-    } catch {
-      // Storage unavailable (private mode): still allow one splash per load.
-      splashSnapshot = true
-    }
-  }
-  return splashSnapshot
 }
 
 export function SplashIntro() {
-  // SSR renders nothing; the client snapshot decides after hydration, so the
-  // markup never mismatches. The stamp on first read keeps the splash to one
-  // per session across reloads and in-app navigations.
-  const visible = useSyncExternalStore(
-    noSubscription,
-    getSplashSnapshot,
-    () => true,
-  )
+  // SSR and client renders are identical (deterministic timings, always
+  // present markup); visibility itself is CSS-driven via the head script's
+  // marker, so the 'seen' case costs nothing and never animates. Only the
+  // phase chain is React's job, and it runs only when this document was
+  // marked 'show'.
   const [phase, setPhase] = useState<Phase>('intro')
   const [dismissed, setDismissed] = useState(false)
 
-  // One randomized delay/duration per letter for the whole splash, grouped
-  // by row, so intro and outro reuse the same rhythm instead of reshuffling.
-  const rows = useMemo(
-    () =>
-      [PIXEL, BREAKER].map((row) =>
-        row.map((letter) => ({ letter, style: randomTiming() })),
-      ),
-    [],
-  )
+  const rows = useMemo(() => {
+    let index = 0
+    return [PIXEL, BREAKER].map((row) =>
+      row.map((letter) => ({ letter, style: letterTiming(index++) })),
+    )
+  }, [])
 
   useEffect(() => {
-    if (!visible || dismissed) return
+    if (document.documentElement.dataset.splash !== 'show') return
+    // The intro runs from first paint (marker is set pre-paint), so the
+    // chain starts here; OUTRO_DELAY (1500ms) always clears the worst-case
+    // intro offset (max stagger + max duration = 1259ms).
     const timers = [
       window.setTimeout(() => setPhase('outro'), OUTRO_DELAY),
       window.setTimeout(() => setPhase('fade'), OUTRO_DELAY + OUTRO_DURATION),
@@ -120,9 +123,9 @@ export function SplashIntro() {
       ),
     ]
     return () => timers.forEach((timer) => window.clearTimeout(timer))
-  }, [visible, dismissed])
+  }, [])
 
-  if (!visible || dismissed) return null
+  if (dismissed) return null
 
   return (
     <div

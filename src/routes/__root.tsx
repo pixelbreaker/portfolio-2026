@@ -8,7 +8,10 @@ import {
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import { PointerSnare } from '../components/PointerSnare'
-import { SplashIntro } from '../components/SplashIntro'
+import {
+  SplashIntro,
+  splashInitializationScript,
+} from '../components/SplashIntro'
 import { themeInitializationScript, useTheme } from '../use-theme'
 import stylesHref from '../styles.css?url'
 
@@ -59,6 +62,9 @@ function RootComponent() {
         <HeadContent />
         <script
           dangerouslySetInnerHTML={{ __html: themeInitializationScript }}
+        />
+        <script
+          dangerouslySetInnerHTML={{ __html: splashInitializationScript }}
         />
       </head>
       <body>
