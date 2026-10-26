@@ -1,1 +1,0 @@
-export { Lasso } from './Lasso'
