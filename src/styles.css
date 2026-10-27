@@ -1,12 +1,6 @@
 :root {
   color-scheme: light dark;
-  font-family:
-    'Inter',
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font-family: var(--font-ui);
   color: var(--color-text);
   background: var(--color-background);
   font-synthesis: none;
@@ -32,6 +26,13 @@
   --radius-md: 0.75rem;
   --shadow-sm: 0 1px 2px light-dark(rgb(23 23 23 / 8%), rgb(0 0 0 / 24%));
   --content-width: 72rem;
+
+  /* UI chrome (nav, headings, buttons) stays sans; reading matter below
+     uses Source Serif 4, whose opsz axis the browser drives from the
+     rendered size. Georgia is the metric-rough swap fallback. */
+  --font-ui: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', sans-serif;
+  --font-serif: 'Source Serif 4', Georgia, serif;
 }
 
 :root[data-theme='light'] {
@@ -230,7 +231,7 @@ a:focus-visible {
 
 .page-intro {
   max-width: 40rem;
-  margin: var(--space-5) 0 0;
+  font-family: var(--font-serif);
   color: var(--color-muted);
   font-size: clamp(1.125rem, 2.5vw, 1.375rem);
   line-height: 1.6;
@@ -263,11 +264,15 @@ a:focus-visible {
 }
 
 .work-card p {
+  font-family: var(--font-serif);
   color: var(--color-muted);
   line-height: 1.7;
 }
 
 .prose {
+  /* Headings inherit Inter: their tracking and tight leading are tuned
+     for it, so only the reading text goes serif. */
+  font-family: var(--font-serif);
   margin-top: var(--space-7);
 }
 
@@ -305,6 +310,7 @@ a:focus-visible {
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   background: var(--color-surface);
+  font-family: var(--font-ui);
   font-size: 0.9375rem;
 }
 
@@ -318,6 +324,8 @@ a:focus-visible {
 }
 
 .prose pre code {
+  font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas,
+    monospace;
   padding: 0;
   background: none;
 }
