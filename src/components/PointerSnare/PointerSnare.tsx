@@ -195,6 +195,9 @@ export function PointerSnare() {
     }
 
     const onMove = (event: PointerEvent) => {
+      // The ring/ticks start transparent; this class fades them in over
+      // 300ms. add() is idempotent so it only fires on the first move.
+      root.classList.add('pointer-snare-on')
       const dx = event.clientX - x
       const dy = event.clientY - y
       x = event.clientX
@@ -241,6 +244,7 @@ export function PointerSnare() {
       window.removeEventListener('pointermove', onMove)
       cancelAnimationFrame(frame)
       root.classList.remove('pointer-snare-cursor-none')
+      root.classList.remove('pointer-snare-on')
     }
   }, [])
 

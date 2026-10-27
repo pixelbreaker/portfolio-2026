@@ -17,7 +17,16 @@
     border-radius: 4px;
     pointer-events: none;
     will-change: transform;
-    transition: border-color 180ms ease;
+    opacity: 0;
+    transition: border-color 180ms ease, opacity 300ms ease;
+  }
+
+  /* Hidden until the pointer first moves: <html> gains .pointer-snare-on
+     exactly once, so everything fades in a single time and never
+     re-triggers while the pointer keeps moving. */
+  .pointer-snare-on .pointer-snare,
+  .pointer-snare-on .pointer-snare-tick {
+    opacity: 1;
   }
 
   /* Full-contrast ticks where the pointer's axes cross the border;
@@ -33,6 +42,8 @@
     border: 0 solid light-dark(#000000, #ffffff);
     pointer-events: none;
     will-change: transform;
+    opacity: 0;
+    transition: opacity 300ms ease;
   }
 
   /* Ring-wide box: its 1px side borders become 3px-tall marks. */
@@ -68,7 +79,6 @@
   .pointer-snare-dot--visible {
     display: block;
   }
-
   /* The dot carries the cursor, so hide the native arrow while shown. */
   .pointer-snare-cursor-none,
   .pointer-snare-cursor-none * {
