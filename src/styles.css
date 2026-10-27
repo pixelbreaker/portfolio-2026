@@ -154,6 +154,7 @@ a:focus-visible {
   white-space: nowrap;
   direction: ltr;
   display: inline-block;
+  max-width: 24px;
 }
 
 .page-main {

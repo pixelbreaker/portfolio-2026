@@ -30,7 +30,6 @@
   right: 0;
   top: 0;
   transition: opacity 300ms ease;
-  z-index: 100;
 }
 
 .splash-intro--fade {

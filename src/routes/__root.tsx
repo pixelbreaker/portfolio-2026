@@ -123,13 +123,17 @@ export const Route = createRootRoute({
       { title: 'Portfolio' },
     ],
     links: [
-      { rel: 'stylesheet', href: stylesHref },
+      // Preconnects first in the array. React's hoisting sorts these plain
+      // links below the precedence-tagged stylesheets anyway, but they still
+      // parse before the css2 responses reveal the gstatic TTF URLs, which
+      // is the connection worth warming early.
       { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
       {
         rel: 'preconnect',
         href: 'https://fonts.gstatic.com',
         crossOrigin: 'anonymous',
       },
+      { rel: 'stylesheet', href: stylesHref },
       {
         rel: 'stylesheet',
         href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap',
@@ -137,8 +141,11 @@ export const Route = createRootRoute({
       {
         rel: 'stylesheet',
         // Subset to only the three theme-toggle glyphs; the full
-        // variable font is ~1MB.
-        href: 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=contrast,contrast_auto,contrast_inverse&display=swap',
+        // variable font is ~1MB. display=block, not swap: a ligature name
+        // in a fallback font paints the raw words 'contrast_auto', and
+        // swap guarantees that flash. The ~2KB subset's block period is
+        // short enough to be invisible.
+        href: 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=contrast,contrast_auto,contrast_inverse&display=block',
       },
     ],
   }),
