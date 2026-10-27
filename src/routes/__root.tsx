@@ -15,13 +15,36 @@ import {
 import { themeInitializationScript, useTheme } from '../use-theme'
 import stylesHref from '../styles.css?url'
 
+// Material Symbols ligature names; the head link subsets the font to these.
+const THEME_ICONS = {
+  light: 'contrast',
+  dark: 'contrast_inverse',
+  auto: 'contrast_auto',
+} as const
+
+const THEME_LABELS = {
+  light: 'Light theme active, switch to dark theme',
+  dark: 'Dark theme active, follow the system theme',
+  auto: 'Following the system theme, switch to light theme',
+} as const
+
 function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme()
-  const nextTheme = theme === 'light' ? 'dark' : 'light'
+  // During SSR the stored preference is unknown; 'auto' is the no-preference
+  // state a first-time visitor gets, and the pre-paint script resolves the
+  // real theme from the system setting.
+  const { mode, cycleMode } = useTheme()
+  const shown = mode ?? 'auto'
 
   return (
-    <button className="theme-toggle" type="button" onClick={toggleTheme}>
-      Switch to {nextTheme} mode
+    <button
+      className="theme-toggle"
+      type="button"
+      onClick={cycleMode}
+      aria-label={THEME_LABELS[shown]}
+    >
+      <span className="theme-toggle-icon" aria-hidden="true">
+        {THEME_ICONS[shown]}
+      </span>
     </button>
   )
 }
@@ -110,6 +133,12 @@ export const Route = createRootRoute({
       {
         rel: 'stylesheet',
         href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap',
+      },
+      {
+        rel: 'stylesheet',
+        // Subset to only the three theme-toggle glyphs; the full
+        // variable font is ~1MB.
+        href: 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=contrast,contrast_auto,contrast_inverse&display=swap',
       },
     ],
   }),

@@ -1,10 +1,12 @@
 import { useEffect, useSyncExternalStore } from 'react'
 
+export type ThemeMode = 'light' | 'dark' | 'auto'
 type Theme = 'light' | 'dark'
 
 const THEME_STORAGE_KEY = 'portfolio-theme'
 
-// Runs in the document head, before React or the first body paint.
+// Runs in the document head, before React or the first body paint. A missing
+// stored value means auto mode: follow the system setting.
 export const themeInitializationScript = `(() => {
   let theme;
   try {
@@ -18,7 +20,15 @@ export const themeInitializationScript = `(() => {
   document.documentElement.dataset.theme = theme;
 })();`
 
-function readTheme(): Theme {
+function systemTheme(): Theme {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light'
+}
+
+// The stored preference, not the effective theme: 'auto' means "follow the
+// system", which is also the no-preference state.
+function readThemeMode(): ThemeMode {
   let storedTheme
   try {
     storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY)
@@ -26,45 +36,50 @@ function readTheme(): Theme {
     // Match the document-head fallback when browser storage is unavailable.
   }
   if (storedTheme === 'light' || storedTheme === 'dark') return storedTheme
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light'
+  return 'auto'
 }
 
 function subscribeToTheme(onChange: () => void) {
-  const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
   window.addEventListener('storage', onChange)
   window.addEventListener('portfolio-theme-change', onChange)
-  systemTheme.addEventListener('change', onChange)
 
   return () => {
     window.removeEventListener('storage', onChange)
     window.removeEventListener('portfolio-theme-change', onChange)
-    systemTheme.removeEventListener('change', onChange)
   }
 }
 
 export function useTheme() {
   // A neutral hydration snapshot must not overwrite the pre-paint theme.
-  const theme = useSyncExternalStore<Theme | null>(
+  const mode = useSyncExternalStore<ThemeMode | null>(
     subscribeToTheme,
-    readTheme,
+    readThemeMode,
     () => null,
   )
 
   useEffect(() => {
-    if (theme === null) return
-    document.documentElement.dataset.theme = theme
-    document
-      .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', theme === 'dark' ? '#171717' : '#f7f7f5')
-  }, [theme])
+    if (mode === null) return
+    const apply = () => {
+      const theme = mode === 'auto' ? systemTheme() : mode
+      document.documentElement.dataset.theme = theme
+      document
+        .querySelector('meta[name="theme-color"]')
+        ?.setAttribute('content', theme === 'dark' ? '#171717' : '#f7f7f5')
+    }
+    apply()
+    if (mode !== 'auto') return
+    // Auto mode re-applies when the OS flips while the mode itself is stable.
+    const darkQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    darkQuery.addEventListener('change', apply)
+    return () => darkQuery.removeEventListener('change', apply)
+  }, [mode])
 
-  function toggleTheme() {
-    const nextTheme = theme === 'light' ? 'dark' : 'light'
-    window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme)
+  function cycleMode() {
+    const nextMode: ThemeMode =
+      mode === 'light' ? 'dark' : mode === 'dark' ? 'auto' : 'light'
+    window.localStorage.setItem(THEME_STORAGE_KEY, nextMode)
     window.dispatchEvent(new Event('portfolio-theme-change'))
   }
 
-  return { theme, toggleTheme }
+  return { mode, cycleMode }
 }
