@@ -9,6 +9,7 @@ const FREE_HALF = 16 // half the free ring size; matches CSS .pointer-snare
 const SNARE_PAD = 8 // 0.5rem clearance around a snared element
 const MIN_SPAN = 4
 const TICK_HALF = 1.5 // half the tick length; matches CSS .pointer-snare-tick
+const PRESS_OUT = 3 // extra reach while a mouse button is held
 
 const LEAD_RATE = 0.8
 const LEAD_FRICTION = 0.2
@@ -108,6 +109,8 @@ export function PointerSnare() {
     let x = window.innerWidth / 2
     let y = window.innerHeight / 2
     let target: Element | null = null
+    let pressed = false
+    let targetRadius = ''
 
     // Ticks sit where the pointer's axes cross the border. They read the
     // raw cursor, not the eased edges, so they never lag behind it; they
@@ -137,10 +140,27 @@ export function PointerSnare() {
     }
 
     const setPointerEnds = () => {
-      left.end = x - FREE_HALF
-      right.end = x + FREE_HALF
-      top.end = y - FREE_HALF
-      bottom.end = y + FREE_HALF
+      const reach = FREE_HALF + (pressed ? PRESS_OUT : 0)
+      if (pressed) {
+        for (const edge of edges) {
+          edge.targetRate = SNARE_RATE
+          edge.rate = SNARE_RATE
+          edge.targetFriction = SNARE_FRICTION
+          edge.friction = SNARE_FRICTION
+        }
+      }
+      left.end = x - reach
+      right.end = x + reach
+      top.end = y - reach
+      bottom.end = y + reach
+    }
+
+    // Snared corners stay concentric with the element: the arc grows with
+    // the reach, so a press pushes them out instead of squaring them off.
+    const setRingRadius = () => {
+      el.style.borderRadius = targetRadius
+        ? `calc(${targetRadius} + ${SNARE_PAD + (pressed ? PRESS_OUT : 0)}px)`
+        : ''
     }
 
     // Refreshed every frame while snared so scrolling drags the ring.
@@ -150,17 +170,19 @@ export function PointerSnare() {
         return false
       }
       const rect = target.getBoundingClientRect()
-      left.end = rect.left - SNARE_PAD
-      right.end = rect.right + SNARE_PAD
-      top.end = rect.top - SNARE_PAD
-      bottom.end = rect.bottom + SNARE_PAD
+      const reach = SNARE_PAD + (pressed ? PRESS_OUT : 0)
+
+      left.end = rect.left - reach
+      right.end = rect.right + reach
+      top.end = rect.top - reach
+      bottom.end = rect.bottom + reach
       return true
     }
 
     // Leading edges chase hard, trailing edges lag; each edge's tuning
     // is itself eased so a direction swap is a force ramp, not a snap.
     const setLeadStates = (dx: number, dy: number) => {
-      if (target) {
+      if (target || pressed) {
         for (const edge of edges) {
           edge.targetRate = SNARE_RATE
           edge.rate = SNARE_RATE
@@ -183,7 +205,8 @@ export function PointerSnare() {
       frame = 0
       if (target && !setSnareEnds()) {
         el.classList.remove('pointer-snare--snared')
-        el.style.borderRadius = ''
+        targetRadius = ''
+        setRingRadius()
         setPointerEnds()
       }
       let moving = false
@@ -207,15 +230,14 @@ export function PointerSnare() {
       // pointer sits on an eligible child, the ring wraps the group.
       const hit =
         event.target instanceof Element
-          ? event.target.closest(SNARE_GROUP_SELECTOR) ??
-            event.target.closest(SNARE_SELECTOR)
+          ? (event.target.closest(SNARE_GROUP_SELECTOR) ??
+            event.target.closest(SNARE_SELECTOR))
           : null
       if (hit !== target) {
         target = hit
         el.classList.toggle('pointer-snare--snared', Boolean(hit))
-        el.style.borderRadius = hit
-          ? `calc(${getComputedStyle(hit).borderRadius} + 0.5rem)`
-          : ''
+        targetRadius = hit ? getComputedStyle(hit).borderRadius : ''
+        setRingRadius()
         if (target) setSnareEnds()
       }
       if (!target) setPointerEnds()
@@ -240,8 +262,28 @@ export function PointerSnare() {
     paint()
 
     window.addEventListener('pointermove', onMove, { passive: true })
+
+    // Pressing pushes all four edges 5px outward; releasing lets the same
+    // springs pull them back, so no separate easing is needed. Cancel
+    // counts as release so a lost pointer never leaves the ring stretched.
+    const setPressed = (down: boolean) => {
+      if (pressed === down) return
+      pressed = down
+      if (target) setSnareEnds()
+      else setPointerEnds()
+      setRingRadius()
+      if (!frame) frame = requestAnimationFrame(animate)
+    }
+    const onDown = () => setPressed(true)
+    const onUp = () => setPressed(false)
+    window.addEventListener('pointerdown', onDown, { passive: true })
+    window.addEventListener('pointerup', onUp, { passive: true })
+    window.addEventListener('pointercancel', onUp, { passive: true })
     return () => {
       window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerdown', onDown)
+      window.removeEventListener('pointerup', onUp)
+      window.removeEventListener('pointercancel', onUp)
       cancelAnimationFrame(frame)
       root.classList.remove('pointer-snare-cursor-none')
       root.classList.remove('pointer-snare-on')
