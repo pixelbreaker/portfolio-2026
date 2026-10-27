@@ -2,8 +2,9 @@ import { useEffect, useRef } from 'react'
 
 import './PointerSnare.css'
 
+const SNARE_SELECTOR = 'a, button, [data-snare], [data-snare-group]'
+const SNARE_GROUP_SELECTOR = '[data-snare-group]'
 const POINTER_QUERY = '(hover: hover) and (pointer: fine)'
-const SNARE_SELECTOR = 'a, button'
 const FREE_HALF = 16 // half the free ring size; matches CSS .pointer-snare
 const SNARE_PAD = 8 // 0.5rem clearance around a snared element
 const MIN_SPAN = 4
@@ -203,9 +204,12 @@ export function PointerSnare() {
       x = event.clientX
       y = event.clientY
 
+      // A snare group is one snare for its whole cluster: even when the
+      // pointer sits on an eligible child, the ring wraps the group.
       const hit =
         event.target instanceof Element
-          ? event.target.closest(SNARE_SELECTOR)
+          ? event.target.closest(SNARE_GROUP_SELECTOR) ??
+            event.target.closest(SNARE_SELECTOR)
           : null
       if (hit !== target) {
         target = hit

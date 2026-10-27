@@ -30,10 +30,10 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="app-shell">
       <header className="site-header">
-        <Link className="site-brand" to="/">
-          Portfolio
-        </Link>
-        <nav className="site-nav" aria-label="Main navigation">
+        <nav className="site-nav" aria-label="Main navigation" data-snare-group>
+          <Link className="site-brand" to="/">
+            Portfolio
+          </Link>
           <Link to="/about" activeProps={{ 'aria-current': 'page' }}>
             About
           </Link>

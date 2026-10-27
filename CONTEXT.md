@@ -23,8 +23,12 @@ The state in which the PointerSnare has latched onto an Interactive Element; the
 _Avoid_: Snap, capture, latch
 
 **Interactive Element**:
-An element the visitor can activate — links and buttons — which the PointerSnare surrounds and highlights.
+An element the PointerSnare surrounds and highlights — links and buttons by default; any other element joins by being marked snare-worthy (`data-snare`), unless it sits inside a Snare Group.
 _Avoid_: Control, actionable, target
+
+**Snare Group**:
+An element marked group-worthy (`data-snare-group`) that the PointerSnare wraps as a single Snare for its whole cluster; eligible elements inside it never snare on their own.
+_Avoid_: Cluster, container, region
 
 **Cursor Dot**:
 The dot that stands in for the native cursor while the PointerSnare is free.

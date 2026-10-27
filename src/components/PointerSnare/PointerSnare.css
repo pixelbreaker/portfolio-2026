@@ -13,7 +13,7 @@
     top: 0;
     left: 0;
     /* Size and position are driven per-frame by the friction integrator. */
-    border: 1px solid light-dark(#d9d9d2, #44443e);
+    border: 1px solid light-dark(#c8c8c8, #44443e);
     border-radius: 4px;
     pointer-events: none;
     will-change: transform;
@@ -71,6 +71,6 @@
   }
 
   .pointer-snare--snared {
-    border-color: color-mix(in srgb, var(--color-accent) 70%, transparent);
+    border-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
   }
 }
