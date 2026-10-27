@@ -123,6 +123,14 @@ export const Route = createRootRoute({
       { title: 'Portfolio' },
     ],
     links: [
+      // Served verbatim from public/favicon.ico (copied from the old
+      // PIXELBREAKER Gatsby site's static/ dir).
+      {
+        rel: 'icon',
+        href: '/favicon.ico',
+        sizes: '16x16',
+        type: 'image/x-icon',
+      },
       // Preconnects first in the array. React's hoisting sorts these plain
       // links below the precedence-tagged stylesheets anyway, but they still
       // parse before the css2 responses reveal the gstatic TTF URLs, which
