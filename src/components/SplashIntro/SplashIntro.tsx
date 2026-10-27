@@ -51,8 +51,8 @@ interface Letter {
   exit: 'outro-top' | 'outro-bottom'
 }
 
-// PIXEL drops in from above, BREAKER from below; on exit each half slides
-// back out the way it came.
+// PIXEL drops in from above, BREAKER from below (with a green full stop
+// after the final R); on exit each half slides back out the way it came.
 const PIXEL: Letter[] = (['p', 'i', 'x', 'e', 'l'] as const).map((char) => ({
   char,
   enter: 'intro-top',
@@ -67,7 +67,13 @@ const BREAKER: Letter[] = (['b', 'r', 'e', 'a', 'k', 'e', 'r'] as const).map(
   }),
 )
 
-const OUTRO_DELAY = 1500
+// The square full stop belongs to the row it trails, so it follows that
+// row's entrance/exit direction.
+const ROWS: { letters: Letter[]; stop: boolean }[] = [
+  { letters: PIXEL, stop: false },
+  { letters: BREAKER, stop: true },
+]
+
 const OUTRO_DURATION = 1000
 const FADE_DURATION = 300
 
@@ -84,14 +90,34 @@ const BASE_DURATION = 520
 const MAX_EXTRA_DURATION = 240
 const DURATION_STRIDE = 61
 
-function letterTiming(index: number): React.CSSProperties {
-  return {
-    animationDelay: `${(index * STAGGER_STRIDE) % MAX_STAGGER}ms`,
-    animationDuration: `${
-      BASE_DURATION + ((index * DURATION_STRIDE) % MAX_EXTRA_DURATION)
-    }ms`,
-  }
-}
+// Every letter slot in row order, with the stagger delay/duration it
+// enters (and exits) with.
+const LETTER_TIMINGS = ROWS.flatMap((row) => row.letters).map((_, index) => ({
+  delay: (index * STAGGER_STRIDE) % MAX_STAGGER,
+  duration: BASE_DURATION + ((index * DURATION_STRIDE) % MAX_EXTRA_DURATION),
+}))
+
+// The full stop is the last thing in: it starts dropping the instant every
+// letter has come to rest (worst-case delay + duration), then blinks as a
+// caret for BLINK_PERIOD * BLINK_CYCLES, and only then does the outro
+// start. Its timings ship as custom properties so the CSS can stack its
+// two animations — drop-in, then blink — each with its own delay.
+const STOP_ENTER_DELAY = Math.max(
+  ...LETTER_TIMINGS.map(({ delay, duration }) => delay + duration),
+)
+const STOP_ENTER_DURATION = 420
+const BLINK_PERIOD = 1000
+const BLINK_CYCLES = 3
+const OUTRO_DELAY =
+  STOP_ENTER_DELAY + STOP_ENTER_DURATION + BLINK_PERIOD * BLINK_CYCLES
+
+const STOP_STYLE = {
+  '--stop-enter-delay': `${STOP_ENTER_DELAY}ms`,
+  '--stop-enter-duration': `${STOP_ENTER_DURATION}ms`,
+  '--stop-blink-delay': `${STOP_ENTER_DELAY + STOP_ENTER_DURATION}ms`,
+  '--stop-blink-period': `${BLINK_PERIOD}ms`,
+  '--stop-blink-cycles': `${BLINK_CYCLES}`,
+} as React.CSSProperties
 
 export function SplashIntro() {
   // SSR and client renders are identical (deterministic timings, always
@@ -103,17 +129,27 @@ export function SplashIntro() {
   const [dismissed, setDismissed] = useState(false)
 
   const rows = useMemo(() => {
-    let index = 0
-    return [PIXEL, BREAKER].map((row) =>
-      row.map((letter) => ({ letter, style: letterTiming(index++) })),
-    )
+    let slot = 0
+    return ROWS.map((row) => ({
+      letters: row.letters.map((letter) => {
+        const { delay, duration } = LETTER_TIMINGS[slot++]
+        return {
+          letter,
+          style: {
+            animationDelay: `${delay}ms`,
+            animationDuration: `${duration}ms`,
+          },
+        }
+      }),
+      stop: row.stop ? STOP_STYLE : null,
+    }))
   }, [])
 
   useEffect(() => {
     if (document.documentElement.dataset.splash !== 'show') return
     // The intro runs from first paint (marker is set pre-paint), so the
-    // chain starts here; OUTRO_DELAY (1500ms) always clears the worst-case
-    // intro offset (max stagger + max duration = 1259ms).
+    // chain starts here; OUTRO_DELAY is derived from the stop's timings, so
+    // the caret has blinked for exactly BLINK_PERIOD * BLINK_CYCLES first.
     const timers = [
       window.setTimeout(() => setPhase('outro'), OUTRO_DELAY),
       window.setTimeout(() => setPhase('fade'), OUTRO_DELAY + OUTRO_DURATION),
@@ -135,7 +171,7 @@ export function SplashIntro() {
       <div className="splash-intro-logo">
         {rows.map((row, rowIndex) => (
           <div className="splash-intro-row" key={rowIndex}>
-            {row.map(({ letter, style }, index) => (
+            {row.letters.map(({ letter, style }, index) => (
               <span
                 key={index}
                 className={`splash-intro-letter ${
@@ -145,6 +181,16 @@ export function SplashIntro() {
                 dangerouslySetInnerHTML={{ __html: GLYPHS[letter.char] }}
               />
             ))}
+            {row.stop && (
+              <span
+                className={`splash-intro-stop ${
+                  phase === 'intro'
+                    ? 'splash-intro-stop--enter'
+                    : 'splash-intro-stop--exit'
+                }`}
+                style={row.stop}
+              />
+            )}
           </div>
         ))}
       </div>

@@ -62,6 +62,19 @@
   width: auto;
 }
 
+/* Square full stop trailing the BREAKER row: 6px accent square, bottom-
+   aligned to the letter boxes then nudged 1px down. It drops in only after
+   every letter has come to rest, then blinks like a caret; the timing lives
+   in custom properties set inline in SplashIntro.tsx, so server and client
+   markup match. */
+.splash-intro-stop {
+  align-self: flex-end;
+  background: var(--color-accent);
+  height: 6px;
+  margin-bottom: -1px;
+  width: 6px;
+}
+
 @keyframes splash-intro-top {
   from {
     transform: translateZ(0) translateY(-60vh);
@@ -102,6 +115,24 @@
   }
 }
 
+/* Square-wave caret blink: on, off, back on, so the stop is still visible
+   when the outro swaps in its exit animation. */
+@keyframes splash-stop-blink {
+  0%,
+  49.9% {
+    opacity: 1;
+  }
+
+  50%,
+  99.9% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
 /* fill-mode both parks each letter at its "from" position across its
    stagger window, then keeps the exit transform, so the hold and the
    fade-out window need no extra transforms. Delay/duration are inline
@@ -119,6 +150,24 @@
 }
 
 .splash-intro-letter.outro-bottom {
+  animation: splash-outro-bottom 1s ease both;
+}
+
+/* The stop runs two animations at once — the drop-in from below, then the
+   caret blink, which starts where the drop-in ends and runs until the outro
+   swaps in the exit. Longhand lists keep each animation's own delay,
+   duration and repeat count legible; a single shorthand could carry only one
+   pair. */
+.splash-intro-stop--enter {
+  animation-delay: var(--stop-enter-delay), var(--stop-blink-delay);
+  animation-duration: var(--stop-enter-duration), var(--stop-blink-period);
+  animation-fill-mode: both, both;
+  animation-iteration-count: 1, var(--stop-blink-cycles);
+  animation-name: splash-intro-bottom, splash-stop-blink;
+  animation-timing-function: ease, linear;
+}
+
+.splash-intro-stop--exit {
   animation: splash-outro-bottom 1s ease both;
 }
 
