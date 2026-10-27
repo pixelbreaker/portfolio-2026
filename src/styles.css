@@ -73,6 +73,10 @@ a {
 
 
 @media (hover: hover) and (pointer: fine) {
+  a {
+    transition: background-color 200ms ease-in-out;
+  }
+
   a:hover {
     border-radius: 4px;
     background-color: var(--color-surface);
@@ -109,18 +113,29 @@ a:focus-visible {
   text-transform: lowercase;
 }
 
-.site-header a:before {
+.site-nav a:before {
   content: '/';
-  /* color: var(--color-text-fade); */
+}
+
+.site-brand {
+  padding: var(--space-1);
+  border-radius: 1rem;
+}
+
+.site-brand svg {
+  display: block;
+  height: 48px;
+  width: auto;
 }
 
 .site-nav {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-3) var(--space-5);
+  gap: var(--space-1);
   order: 3;
   width: 100%;
+  margin-right: var(--space-2);
 }
 
 .site-nav a {
@@ -356,5 +371,12 @@ a:focus-visible {
   .site-nav {
     order: 0;
     width: auto;
+    margin-left: auto;
+  }
+
+  /* The auto margin moved to the nav, which now sits directly left of the
+     toggle on the right edge. */
+  .theme-toggle {
+    margin-left: 0;
   }
 }

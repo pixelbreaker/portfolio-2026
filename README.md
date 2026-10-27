@@ -34,7 +34,7 @@ Vitest runs in jsdom with Testing Library. Two suites cover the content paths: `
 
 ## Pages and content
 
-The main navigation links to `/about` and `/projects`. Projects have a listing and an individual page at `/projects/:slug`. To publish a project, add an entry with a unique slug, title, and summary to the `projects` array in `src/work.ts`, and give it a body in one of two forms:
+The header's top-left brand is the PIXELBREAKER wordmark from the old Gatsby site (`src/components/HeaderLogo/logo.svg`, imported with `?raw`), painting via `fill="currentColor"` — off-white `--color-text` on dark, dark grey on light. The top-level `to="/"` Link is the only accessibility name for it, so the inline SVG is `aria-hidden`. On wide viewports the main navigation sits to the right, directly left of the theme toggle; on narrow ones it wraps to a second row. It links to `/about` and `/projects`. Projects have a listing and an individual page at `/projects/:slug`. To publish a project, add an entry with a unique slug, title, and summary to the `projects` array in `src/work.ts`, and give it a body in one of two forms:
 
 - **Markdown**: write `src/content/<slug>.md`, import it in `src/work.ts` with `?raw`, and set `body` to `{ kind: 'markdown', source }`. It renders with GFM extensions (tables, task lists, strikethrough, autolinks); raw HTML in the markdown is not rendered.
 - **React component**: add `src/content/<slug>.tsx` with a default-exported component and set `body` to `{ kind: 'component', component }`. The page shell still renders the title and summary; the component owns everything below and can use any React feature for custom layouts or experiments.

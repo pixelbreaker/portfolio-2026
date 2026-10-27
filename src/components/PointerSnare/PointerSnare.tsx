@@ -77,25 +77,19 @@ function step(edge: Edge): boolean {
 export function PointerSnare() {
   const ref = useRef<HTMLDivElement>(null)
   const dotRef = useRef<HTMLDivElement>(null)
-  const leftTickRef = useRef<HTMLDivElement>(null)
-  const rightTickRef = useRef<HTMLDivElement>(null)
-  const topTickRef = useRef<HTMLDivElement>(null)
-  const bottomTickRef = useRef<HTMLDivElement>(null)
+  const sidesTickRef = useRef<HTMLDivElement>(null)
+  const endsTickRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const el = ref.current
     const dot = dotRef.current
-    const leftTick = leftTickRef.current
-    const rightTick = rightTickRef.current
-    const topTick = topTickRef.current
-    const bottomTick = bottomTickRef.current
+    const sidesTick = sidesTickRef.current
+    const endsTick = endsTickRef.current
     if (
       !el ||
       !dot ||
-      !leftTick ||
-      !rightTick ||
-      !topTick ||
-      !bottomTick ||
+      !sidesTick ||
+      !endsTick ||
       !window.matchMedia(POINTER_QUERY).matches
     ) {
       return
@@ -125,10 +119,12 @@ export function PointerSnare() {
       const b = Math.max(bottom.current, t + MIN_SPAN)
       const cx = Math.min(Math.max(x, l), r - 1)
       const cy = Math.min(Math.max(y, t), b - 1)
-      leftTick.style.transform = `translate3d(${l}px, ${cy - TICK_HALF}px, 0)`
-      rightTick.style.transform = `translate3d(${r - 1}px, ${cy - TICK_HALF}px, 0)`
-      topTick.style.transform = `translate3d(${cx - TICK_HALF}px, ${t}px, 0)`
-      bottomTick.style.transform = `translate3d(${cx - TICK_HALF}px, ${b - 1}px, 0)`
+      // Each element spans the whole ring; its side borders paint the
+      // tick marks, so sizing it right is all the positioning needs.
+      sidesTick.style.width = `${r - l}px`
+      sidesTick.style.transform = `translate3d(${l}px, ${cy - TICK_HALF}px, 0)`
+      endsTick.style.height = `${b - t}px`
+      endsTick.style.transform = `translate3d(${cx - TICK_HALF}px, ${t}px, 0)`
     }
 
     const paint = () => {
@@ -254,23 +250,13 @@ export function PointerSnare() {
       <div aria-hidden="true" className="pointer-snare-dot" ref={dotRef} />
       <div
         aria-hidden="true"
-        className="pointer-snare-tick pointer-snare-tick--left"
-        ref={leftTickRef}
+        className="pointer-snare-tick pointer-snare-tick--sides"
+        ref={sidesTickRef}
       />
       <div
         aria-hidden="true"
-        className="pointer-snare-tick pointer-snare-tick--right"
-        ref={rightTickRef}
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-snare-tick pointer-snare-tick--top"
-        ref={topTickRef}
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-snare-tick pointer-snare-tick--bottom"
-        ref={bottomTickRef}
+        className="pointer-snare-tick pointer-snare-tick--ends"
+        ref={endsTickRef}
       />
     </>
   )

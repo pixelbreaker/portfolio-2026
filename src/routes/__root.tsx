@@ -7,6 +7,7 @@ import {
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
+import { HeaderLogo } from '../components/HeaderLogo'
 import { PointerSnare } from '../components/PointerSnare'
 import {
   SplashIntro,
@@ -53,10 +54,10 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="app-shell">
       <header className="site-header">
+        <Link className="site-brand" to="/" aria-label="Pixelbreaker home">
+          <HeaderLogo />
+        </Link>
         <nav className="site-nav" aria-label="Main navigation" data-snare-group>
-          <Link className="site-brand" to="/">
-            Portfolio
-          </Link>
           <Link to="/about" activeProps={{ 'aria-current': 'page' }}>
             About
           </Link>

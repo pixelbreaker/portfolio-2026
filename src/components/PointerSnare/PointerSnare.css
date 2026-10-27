@@ -21,27 +21,32 @@
   }
 
   /* Full-contrast ticks where the pointer's axes cross the border;
-     positioned per-frame from the raw cursor, so they never lag. */
+     positioned per-frame from the raw cursor, so they never lag. Each
+     element stretches the full ring so only its side borders paint: the
+     sides element draws the left/right marks, the ends element the
+     top/bottom marks. */
   .pointer-snare-tick {
     display: block;
     position: fixed;
     top: 0;
     left: 0;
-    background: light-dark(#000000, #ffffff);
+    border: 0 solid light-dark(#000000, #ffffff);
     pointer-events: none;
     will-change: transform;
   }
 
-  .pointer-snare-tick--left,
-  .pointer-snare-tick--right {
-    width: 1px;
+  /* Ring-wide box: its 1px side borders become 3px-tall marks. */
+  .pointer-snare-tick--sides {
     height: 3px;
+    border-left-width: 1px;
+    border-right-width: 1px;
   }
 
-  .pointer-snare-tick--top,
-  .pointer-snare-tick--bottom {
+  /* Ring-tall box: its 1px top/bottom borders become 3px-wide marks. */
+  .pointer-snare-tick--ends {
     width: 3px;
-    height: 1px;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
   }
 
   .pointer-snare-dot {
