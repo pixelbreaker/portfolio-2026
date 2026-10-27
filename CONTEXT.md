@@ -12,6 +12,14 @@ _Avoid_: Website, résumé
 A distinct body of work that can be presented as part of the Portfolio. A Project is not inherently a client engagement, product, or case study.
 _Avoid_: Case study, product, client work
 
+**Content Page**:
+One published piece in the Portfolio, belonging to a Section and reachable at its own address. A Project is the kind of Content Page in the Projects section.
+_Avoid_: Post, article, entry
+
+**Section**:
+A named grouping of Content Pages whose name also names their address space (Projects, Writing). A Section exists as soon as it has pages; with none it does not.
+_Avoid_: Category, tag, collection
+
 ## Pointer interaction
 
 **PointerSnare**:

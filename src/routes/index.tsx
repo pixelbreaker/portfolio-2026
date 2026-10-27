@@ -14,7 +14,7 @@ function HomePage() {
         portfolio.
       </p>
       <div className="page-actions">
-        <Link className="text-link" to="/projects">
+        <Link className="text-link" to="/$" params={{ _splat: 'projects' }}>
           View projects
         </Link>
         <Link className="text-link" to="/about">

@@ -1,6 +1,10 @@
-// Example of a component body: custom layout the markdown path can't do.
-// The page shell renders the title and summary; this component owns everything
-// below them and can use any React feature, including client state.
+// A component content page: metadata travels as named exports, the layout as
+// the default export. The page shell renders title and summary; this
+// component owns everything below them and can use any React feature.
+export const title = 'Choosing server rendering for the portfolio'
+export const summary =
+  'Why this portfolio uses TanStack Start and the Netlify server adapter instead of a static SPA rewrite.'
+
 const tradeoffs = [
   {
     keep: 'Server-rendered document requests',

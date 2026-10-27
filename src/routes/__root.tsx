@@ -13,6 +13,7 @@ import {
   SplashIntro,
   splashInitializationScript,
 } from '../components/SplashIntro'
+import { contentSections, sectionLabel } from '../content'
 import { themeInitializationScript, useTheme } from '../use-theme'
 import stylesHref from '../styles.css?url'
 
@@ -61,13 +62,17 @@ function Shell({ children }: { children: React.ReactNode }) {
           <Link to="/about" activeProps={{ 'aria-current': 'page' }}>
             About
           </Link>
-          <Link
-            to="/projects"
-            activeOptions={{ exact: false }}
-            activeProps={{ 'aria-current': 'page' }}
-          >
-            Projects
-          </Link>
+          {contentSections().map((section) => (
+            <Link
+              key={section}
+              to="/$"
+              params={{ _splat: section }}
+              activeOptions={{ exact: false }}
+              activeProps={{ 'aria-current': 'page' }}
+            >
+              {sectionLabel(section)}
+            </Link>
+          ))}
         </nav>
         <ThemeToggle />
       </header>
@@ -146,6 +151,14 @@ export const Route = createRootRoute({
       {
         rel: 'stylesheet',
         href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap',
+      },
+      {
+        rel: 'stylesheet',
+        // Body copy and prose set in the Source Serif 4 variable font; opsz
+        // is the optical-size axis the browser matches to the rendered size,
+        // and 400/700 are the only weights used — font-synthesis is off, so
+        // <strong> needs the real bold face, not a synthesized one.
+        href: 'https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,700&display=swap',
       },
       {
         rel: 'stylesheet',

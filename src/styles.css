@@ -225,7 +225,7 @@ a:focus-visible {
   margin: 0;
   font-size: clamp(2.5rem, 7vw, 4.5rem);
   letter-spacing: -0.055em;
-  line-height: 1.08;
+  line-height: 0.9;
 }
 
 .page-intro {

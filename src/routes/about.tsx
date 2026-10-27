@@ -15,7 +15,7 @@ function AboutPage() {
         what was built and how.
       </p>
       <div className="page-actions">
-        <Link className="text-link" to="/projects">
+        <Link className="text-link" to="/$" params={{ _splat: 'projects' }}>
           Explore projects
         </Link>
       </div>
