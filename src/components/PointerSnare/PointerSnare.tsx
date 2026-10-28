@@ -23,7 +23,7 @@ const SNARE_FRICTION = 0.6
 
 // Each edge's rate/friction are themselves eased, so reversing direction
 // (which swaps an edge between leading and trailing) never snaps it.
-const RATE_RATE = 0.05
+const RATE_RATE = 0.03
 const RATE_FRICTION = 0.6
 const PRECISION = 0.05
 
