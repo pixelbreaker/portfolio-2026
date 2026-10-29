@@ -1,0 +1,83 @@
+/* Full-bleed breakout: centred on the viewport, not the reading column. */
+.gallery {
+  /* Breathing room from the page's title block above and the footer below. */
+  margin-block: var(--space-6);
+  width: min(100vw, var(--content-width));
+  margin-inline: calc(50% - min(50vw, var(--content-width) / 2));
+}
+
+/* Anchor for the arrow buttons, which must not scroll with the track. */
+.gallery-frame {
+  position: relative;
+}
+
+/* The track is focusable for arrow-key navigation, so it needs a ring. */
+.gallery-track:focus-visible {
+  outline: 0.2rem solid var(--color-accent);
+  outline-offset: 0.2rem;
+}
+
+.gallery-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  /* Swiping past the last slide shouldn't tug the page behind it. */
+  overscroll-behavior-x: contain;
+  /* The arrows and counter are the affordance; not a scrollbar. */
+  scrollbar-width: none;
+}
+
+.gallery-track::-webkit-scrollbar {
+  display: none;
+}
+
+/* 3:2 reserves space before images decode, so the page never jumps. */
+.gallery-slide {
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  scroll-snap-align: start;
+}
+
+.gallery-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The theme-toggle's chrome: surface fill, soft shadow, no border. */
+.gallery-button {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  z-index: 1;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: opacity 180ms ease;
+}
+
+.gallery-button--prev {
+  left: var(--space-4);
+}
+
+.gallery-button--next {
+  right: var(--space-4);
+}
+
+.gallery-button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.gallery-counter {
+  margin: var(--space-3) var(--space-4) 0;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}

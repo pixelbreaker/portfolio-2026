@@ -5,7 +5,7 @@ import {
 } from '@tanstack/react-router'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { within } from '@testing-library/dom'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
 import { routeTree } from '../routeTree.gen'
 
@@ -13,6 +13,13 @@ import { routeTree } from '../routeTree.gen'
 // tests go through the same path: resolve the route, then render the router
 // to a string. The root route returns a full <html> document, which cannot
 // client-render into a jsdom div.
+let container: HTMLElement | undefined
+
+afterEach(() => {
+  container?.remove()
+  container = undefined
+})
+
 async function renderContentPage(path: string) {
   const router = createRouter({
     routeTree,
@@ -21,14 +28,16 @@ async function renderContentPage(path: string) {
   await router.load()
   const html = renderToStaticMarkup(<RouterProvider router={router} />)
 
-  const container = document.createElement('div')
+  // Accessible-name computation resolves referenced ids through the owner
+  // document, so the rendered markup must be attached before getByRole runs.
+  container = document.createElement('div')
   container.innerHTML = html
+  document.body.append(container)
   return within(container)
 }
-
 describe('content pages', () => {
   it('renders a markdown page with frontmatter title, summary, and body', async () => {
-    const page = await renderContentPage('/projects/portfolio-2026')
+    const page = await renderContentPage('/done/portfolio-2026')
 
     expect(
       page.getByRole('heading', { level: 1, name: 'Portfolio 2026' }),
@@ -41,12 +50,12 @@ describe('content pages', () => {
     ).toBeTruthy()
     // The frontmatter block itself must not leak into the rendered body.
     expect(page.queryByText(/^title: Portfolio 2026$/)).toBeNull()
-    // GFM table from src/content/projects/portfolio-2026.md must reach the DOM.
+    // GFM table from src/content/done/portfolio-2026.md must reach the DOM.
     expect(page.getByRole('table')).toBeTruthy()
   })
 
   it('renders a component page from its named metadata exports', async () => {
-    const page = await renderContentPage('/projects/server-rendered-portfolio')
+    const page = await renderContentPage('/done/server-rendered-portfolio')
 
     expect(
       page.getByRole('heading', {
@@ -59,7 +68,7 @@ describe('content pages', () => {
   })
 
   it('serves any content sub-folder as its own URL section', async () => {
-    const page = await renderContentPage('/writing/how-content-routing-works')
+    const page = await renderContentPage('/thought/how-content-routing-works')
 
     expect(
       page.getByRole('heading', {
@@ -68,15 +77,13 @@ describe('content pages', () => {
       }),
     ).toBeTruthy()
     // The page shell links back to its section listing.
-    expect(page.getByRole('link', { name: '← Writing' })).toBeTruthy()
+    expect(page.getByRole('link', { name: '← Thought' })).toBeTruthy()
   })
 
   it('lists a section at /<section>', async () => {
-    const page = await renderContentPage('/projects')
+    const page = await renderContentPage('/done')
 
-    expect(
-      page.getByRole('heading', { level: 1, name: 'Projects' }),
-    ).toBeTruthy()
+    expect(page.getByRole('heading', { level: 1, name: 'Done' })).toBeTruthy()
     expect(page.getByRole('link', { name: 'Portfolio 2026' })).toBeTruthy()
     expect(
       page.getByRole('link', {
@@ -89,12 +96,22 @@ describe('content pages', () => {
     const nav = within(
       page.getByRole('navigation', { name: 'Main navigation' }),
     )
-    expect(nav.getByRole('link', { name: 'Projects' })).toBeTruthy()
-    expect(nav.getByRole('link', { name: 'Writing' })).toBeTruthy()
+    expect(nav.getByRole('link', { name: 'Done' })).toBeTruthy()
+    expect(nav.getByRole('link', { name: 'Seen' })).toBeTruthy()
+    expect(nav.getByRole('link', { name: 'Thought' })).toBeTruthy()
+  })
+
+  it('lists the gallery page in the seen section without rendering it', async () => {
+    // The card listing only; the gallery body needs the imagetools plugin,
+    // which the test pipeline deliberately does not run.
+    const page = await renderContentPage('/seen')
+
+    expect(page.getByRole('heading', { level: 1, name: 'Seen' })).toBeTruthy()
+    expect(page.getByRole('link', { name: 'Canada, 2026' })).toBeTruthy()
   })
 
   it('shows the not-found page for an unknown path', async () => {
-    const page = await renderContentPage('/projects/does-not-exist')
+    const page = await renderContentPage('/done/does-not-exist')
 
     expect(
       page.getByRole('heading', { level: 1, name: 'Page not found' }),

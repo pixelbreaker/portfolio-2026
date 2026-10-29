@@ -1,0 +1,13 @@
+.material-icon {
+  /* Material Symbols ligatures: the glyph name's text becomes an icon, so
+     anything that alters the letters (case, spacing, wrapping) breaks it. */
+  font-family: 'Material Symbols Outlined', sans-serif;
+  font-size: 24px;
+  letter-spacing: normal;
+  text-transform: none;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  display: inline-block;
+  max-width: 24px;
+}

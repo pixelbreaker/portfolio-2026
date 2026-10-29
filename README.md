@@ -22,7 +22,7 @@ Routes live in `src/routes`. TanStack Start uses the router factory in `src/rout
 
 Static assets served verbatim live in `public/`; the root route declares its favicon there (`public/favicon.ico`, carried over from the old Gatsby site).
 
-Global styles and tokens live in `src/styles.css`. The root route declares the Google Fonts links: Inter (400/600) sets headings, nav, and chrome, while Source Serif 4 (variable `opsz`, weights 400 and 700, behind the `--font-body` token) sets running copy — `.page-intro`, `.work-card p`, and prose paragraphs, lists, quotes, and table cells; code stays Inter. The Material Symbols Outlined link subsets via `icon_names` to the three theme-toggle glyphs. The root route also runs a small theme script before the first body paint. The theme toggle cycles system-following (`auto`, the default with no stored `portfolio-theme` value), forced light, and forced dark, showing the `contrast_auto`, `contrast`, and `contrast_inverse` ligature icons. A saved `portfolio-theme` preference takes precedence over the system setting; React keeps a neutral initial snapshot during hydration so it does not overwrite that pre-paint choice. CSS `color-scheme` and `light-dark()` also follow the system theme when JavaScript is disabled.
+Global styles and tokens live in `src/styles.css`. The root route declares the Google Fonts links: Inter (400/600) sets headings, nav, and chrome, while Source Serif 4 (variable `opsz`, weights 400 and 700, behind the `--font-body` token) sets running copy — `.page-intro`, `.work-card p`, and prose paragraphs, lists, quotes, and table cells; code stays Inter. The Material Symbols Outlined link subsets via `icon_names` to the five glyphs the site renders: `contrast`, `contrast_auto` and `contrast_inverse` for the theme toggle, plus `arrow_left` and `arrow_right` for the Gallery. A name missing from that list paints its raw words, so keep the list in step with the `<MaterialIcon>` names in `src/components/MaterialIcon.tsx`. The root route also runs a small theme script before the first body paint. The theme toggle cycles system-following (`auto`, the default with no stored `portfolio-theme` value), forced light, and forced dark, showing the `contrast_auto`, `contrast`, and `contrast_inverse` ligature icons. A saved `portfolio-theme` preference takes precedence over the system setting; React keeps a neutral initial snapshot during hydration so it does not overwrite that pre-paint choice. CSS `color-scheme` and `light-dark()` also follow the system theme when JavaScript is disabled.
 
 ## Tests
 
@@ -30,7 +30,7 @@ Global styles and tokens live in `src/styles.css`. The root route declares the G
 pnpm test
 ```
 
-Vitest runs in jsdom with Testing Library. Two suites cover the content paths: `src/markdown.test.tsx` asserts the markdown renderer's GFM markup and that raw HTML is not rendered, and `src/tests/content-pages.test.tsx` resolves the example content pages (markdown, component, a second-section page, and a section listing) through the real route tree and renders the same server-rendered HTML string production serves, including the 404 for unknown paths. Tests live outside `src/routes` so the route generator ignores them.
+Vitest runs in jsdom with Testing Library. Three suites cover the content paths: `src/markdown.test.tsx` asserts the markdown renderer's GFM markup and that raw HTML is not rendered, `src/tests/content-pages.test.tsx` resolves content pages (markdown, component, a section page, and section listings) through the real route tree and renders the same server-rendered HTML string production serves, including the 404 for unknown paths, and `src/components/Gallery/` tests the photo pairing rules and the Gallery's scroll, button and keyboard behaviour against fixture renditions. Tests live outside `src/routes` so the route generator ignores them.
 
 ## Pages and content
 
@@ -41,7 +41,24 @@ Content pages are declared by the file system: a file at `src/content/<section>/
 - **Markdown**: write `src/content/<section>/<slug>.md` with a leading frontmatter block (`title:`, `summary:`); a missing `title` falls back to the prettified slug. It renders with GFM extensions (tables, task lists, strikethrough, autolinks); raw HTML in the markdown is not rendered.
 - **React component**: add `src/content/<section>/<slug>.tsx` exporting `title`, `summary`, and a default-exported component. The page shell renders the title and summary; the component owns everything below and can use any React feature for custom layouts or experiments.
 
-The listing and detail paths read the same entry from the glob registry in `src/content.ts`. The initial examples are two projects (one per body form) and one `writing` page that documents this routing scheme.
+The listing and detail paths read the same entry from the glob registry in `src/content.ts`. Current sections are `done` (both body forms), `thought` (markdown) and `seen` (the photograph gallery).
+
+### Photograph galleries
+
+`src/components/Gallery/` renders a folder of photographs as one horizontal scroller. The Vite plugin `vite-imagetools` (in `vite.config.ts`) claims image requests that carry a transform query and emits real renditions in both dev and build. A gallery page globs its own folder — `import.meta.glob` needs a literal pattern, so the page that owns the images must name them — asking for the `as=picture` output:
+
+```tsx
+const renditions = import.meta.glob<PictureRendition>(
+  './canada-2026/*.{jpeg,jpg}',
+  {
+    eager: true,
+    import: 'default',
+    query: '?format=avif;webp;jpg&w=640;960;1280;1600;2400&as=picture',
+  },
+)
+```
+
+`as=picture` returns `{ sources, img }` per image: a srcset per format plus the largest rendition in the last-listed format, which becomes the `<img>` fallback. `galleryPhotos(renditions, alt)` pairs those with the page's `alt.json`, whose key order is the display order and whose keys name the files; a file with no entry, or an entry with no file, is warned about and left out. Widths and the `sizes` attribute in `Gallery.tsx` have to agree with the CSS box (`--content-width` full-bleed, 100vw below 72rem) or the browser picks the wrong rendition.
 
 ## Commit messages
 

@@ -52,6 +52,7 @@
     "typescript": "6.0.3",
     "typescript-eslint": "latest",
     "vite": "latest",
+    "vite-imagetools": "^12.0.1",
     "vitest": "^5.0.5"
   }
 }

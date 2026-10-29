@@ -8,6 +8,7 @@ import {
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import { HeaderLogo } from '../components/HeaderLogo'
+import { MaterialIcon } from '../components/MaterialIcon'
 import { PointerSnare } from '../components/PointerSnare'
 import {
   SplashIntro,
@@ -44,9 +45,7 @@ function ThemeToggle() {
       onClick={cycleMode}
       aria-label={THEME_LABELS[shown]}
     >
-      <span className="theme-toggle-icon" aria-hidden="true">
-        {THEME_ICONS[shown]}
-      </span>
+      <MaterialIcon name={THEME_ICONS[shown]} />
     </button>
   )
 }
@@ -59,9 +58,6 @@ function Shell({ children }: { children: React.ReactNode }) {
           <HeaderLogo />
         </Link>
         <nav className="site-nav" aria-label="Main navigation" data-snare-group>
-          <Link to="/about" activeProps={{ 'aria-current': 'page' }}>
-            About
-          </Link>
           {contentSections().map((section) => (
             <Link
               key={section}
@@ -73,6 +69,9 @@ function Shell({ children }: { children: React.ReactNode }) {
               {sectionLabel(section)}
             </Link>
           ))}
+          <Link to="/about" activeProps={{ 'aria-current': 'page' }}>
+            About
+          </Link>
         </nav>
         <ThemeToggle />
       </header>
@@ -162,12 +161,10 @@ export const Route = createRootRoute({
       },
       {
         rel: 'stylesheet',
-        // Subset to only the three theme-toggle glyphs; the full
-        // variable font is ~1MB. display=block, not swap: a ligature name
-        // in a fallback font paints the raw words 'contrast_auto', and
-        // swap guarantees that flash. The ~2KB subset's block period is
-        // short enough to be invisible.
-        href: 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=contrast,contrast_auto,contrast_inverse&display=block',
+        // Subset to the glyphs the site renders (theme toggle + Gallery
+        // arrows); the full variable font is ~1MB. display=block, not swap:
+        // in a fallback font a ligature name paints its raw words.
+        href: 'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=contrast,contrast_auto,contrast_inverse,arrow_left,arrow_right&display=block',
       },
     ],
   }),
