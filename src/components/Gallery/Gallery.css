@@ -1,12 +1,9 @@
-/* The dialog is the carousel in flow and the viewer when shown modally, so
-   the track and its pictures are never re-created. Full-bleed breakout:
-   centred on the viewport, not the reading column. */
+/* One dialog: the carousel in flow, the viewer when modally shown, so the
+   track's pictures are never re-created. Full-bleed: centred on the viewport. */
 .gallery {
-  /* The UA sheet makes a dialog absolutely positioned, capped to its
-     contents, padded, bordered and Canvas-painted; the closed carousel is
-     ordinary in-flow content, so all of that is reset here. The author sheet
-     outranks the UA, which is also what lets a closed <dialog> paint: the UA's
-     dialog:not([open]) display: none loses. */
+  /* The UA paints a dialog: absolute, capped, padded, bordered, Canvas, and
+     hidden closed. The carousel is in-flow content: reset it all, and the
+     author sheet outranking the UA makes a closed <dialog> paint. */
   position: static;
   display: block;
   width: min(100vw, var(--content-width));
@@ -20,8 +17,7 @@
   color: inherit;
   overflow: visible;
   cursor: default;
-  /* Dialog boxes are capped to their contents by the UA sheet; the carousel
-     sizes itself. */
+  /* The UA caps dialog boxes to their contents; the carousel sizes itself. */
   max-width: none;
   max-height: none;
 }
@@ -30,14 +26,12 @@
 .gallery:modal {
   position: fixed;
   display: grid;
-  /* Definite tracks: centred items would size to their content, which for a
-     track of intrinsic-3:2 images is taller than the viewport. The frame is
-     the whole viewport, and contain letterboxes inside it. */
+  /* Definite tracks: a centred item sizes to its content, and the intrinsic
+     3:2 track is taller than the viewport; contain letterboxes inside. */
   grid-template: 100% / 100%;
   inset: 0;
   width: 100vw;
-  /* dvh so a mobile address bar never clips the last photo; vh for browsers
-     that don't know it. */
+  /* dvh so a mobile address bar never clips the last photo; vh as fallback. */
   height: 100vh;
   height: 100dvh;
   margin: 0;
@@ -53,17 +47,14 @@
   background: var(--color-surface);
 }
 
-/* The modal is scrollable in CSS terms, and a modal dialog does not lock the
-   page behind it, so the page stops scrolling while it is open. */
+/* A modal dialog does not lock the page behind it: stop it scrolling. */
 body:has(.gallery:modal) {
   overflow: hidden;
 }
 
-/* The carousel's standing room in the flow while the dialog is away in the top
-   layer, so the document keeps the height the carousel had and the page's
-   scroll position is never clamped. The component gives it a height in the same
-   commit that opens the dialog; nothing is drawn, the carousel's own box is in
-   the top layer, and its block margins travel with it. */
+/* The carousel's standing room while the dialog is in the top layer: the
+   document keeps the carousel's height, so the page's scroll position is never
+   clamped. The component sets its height when opening; nothing is drawn. */
 .gallery-anchor {
   display: none;
   margin-block: var(--space-6);
@@ -72,6 +63,7 @@ body:has(.gallery:modal) {
 /* Anchor for the arrow buttons, which must not scroll with the track. */
 .gallery-frame {
   position: relative;
+  overflow: hidden;
 }
 
 .gallery-track {
@@ -90,9 +82,8 @@ body:has(.gallery:modal) {
   display: none;
 }
 
-/* 3:2 reserves space before images decode, so the page never jumps. The slide
-   is the whole open target, so it is a button with nothing button-like left
-   about it. */
+/* 3:2 reserves space before decode, so the page never jumps. The slide is the
+   open target: a button with nothing button-like left about it. */
 .gallery-slide {
   display: block;
   aspect-ratio: 3 / 2;
@@ -114,10 +105,9 @@ body:has(.gallery:modal) {
   object-fit: cover;
 }
 
-/* Nothing is cropped in the viewer: the photo is letterboxed by contain, and
-   the slide fills the viewport so a click anywhere on it — image and bands
-   alike — closes. The slide's own zoom-in loses to the viewer's zoom-out here,
-   by specificity, so the cursor follows the state and the img inherits it. */
+/* The viewer crops nothing: contain letterboxes, and the slide fills the
+   viewport so any click — image or band — closes. Specificity gives the
+   viewer's zoom-out over the slide's zoom-in; the img inherits. */
 .gallery:modal .gallery-frame {
   width: 100%;
   height: 100%;
@@ -125,9 +115,8 @@ body:has(.gallery:modal) {
 
 .gallery:modal .gallery-track {
   height: 100%;
-  /* Rows auto-size to their content, which is the image's intrinsic 3:2 box:
-     that is taller than the viewport for every landscape photo, and the photo
-     would be cropped instead of letterboxed. */
+  /* Auto rows size to the intrinsic 3:2 box, taller than the viewport: the
+     photo would crop instead of letterbox. */
   grid-template-rows: 100%;
 }
 
@@ -188,8 +177,7 @@ body:has(.gallery:modal) {
   font-variant-numeric: tabular-nums;
 }
 
-/* The counter sits over the letterbox band in the viewer, not under the photo.
-   In-flow it is part of the dialog's grid, so it leaves the track alone. */
+/* In the viewer the counter sits over the letterbox band, not under the photo. */
 .gallery:modal .gallery-counter {
   position: absolute;
   bottom: var(--space-5);
@@ -198,8 +186,7 @@ body:has(.gallery:modal) {
   margin: 0;
 }
 
-/* The slide, not the track, carries focus: it is the open target, so the ring
-   belongs on it and sits inside the photo's edges. */
+/* Focus rides the open target: the ring sits inside the slide's edges. */
 .gallery-slide:focus-visible {
   outline: 0.2rem solid var(--color-accent);
   outline-offset: -0.2rem;

@@ -29,16 +29,14 @@ let scrolls: { left: number; behavior: ScrollBehavior }[]
 
 const computed = window.getComputedStyle.bind(window)
 
-// jsdom lays everything out at zero, which would leave the Gallery with no
-// scroll extent to measure and both buttons disabled. These shims give the
-// scroller real geometry to work against and record its scrollBy calls.
+// jsdom lays out at zero, leaving no scroll extent and both buttons disabled.
+// These shims give the scroller real geometry and record its scripted scrolls.
 beforeEach(() => {
   slides = 0
   scrollLeft = 0
   scrolls = []
   Object.defineProperties(HTMLElement.prototype, {
-    // The anchor stands in for the carousel's box, so the carousel has to have
-    // one.
+    // The anchor measures the carousel's box.
     offsetHeight: { configurable: true, get: () => 768 },
   })
   Object.defineProperties(Element.prototype, {
@@ -51,9 +49,8 @@ beforeEach(() => {
         scrollLeft = value
       },
     },
-    // jsdom ships no scrolling for elements at all. The scripted move steps
-    // through the photos on the way to its target, as a smooth scroll does, so
-    // the Gallery has to answer for the echoes on the way.
+    // jsdom ships no element scrolling. The scripted move steps through the
+    // photos, as a smooth scroll does, so the echoes on the way arrive.
     scrollTo: {
       configurable: true,
       writable: true,
@@ -76,10 +73,9 @@ beforeEach(() => {
   })
 })
 
-// jsdom ships no show/close plumbing for <dialog> (showModal is undefined), and
-// its UA sheet hides a closed one, which the site's author sheet overrides: the
-// closed carousel has to paint. Both gaps are shimmed so `open`, the bubbling
-// close event and the accessibility tree behave like a browser's.
+// jsdom has no <dialog> show/close plumbing and hides a closed one. Shim both:
+// `open`, the bubbling close event and the accessibility tree behave like a
+// browser's, and the author sheet's paint for a closed carousel is honoured.
 beforeEach(() => {
   vi.spyOn(window, 'getComputedStyle').mockImplementation(
     (element: Element, pseudo?: string | null) =>
@@ -106,8 +102,7 @@ beforeEach(() => {
   })
 })
 
-// jsdom has no showModal/close at all, so the pair is installed per test and
-// taken off again, leaving the prototype as the environment shipped it.
+// Installed per test, taken off again, leaving the prototype as shipped.
 const dialogShimKeys = ['showModal', 'close'] as const
 
 afterEach(() => {
@@ -140,8 +135,7 @@ function galleryOf(container: HTMLElement) {
   return gallery
 }
 
-// The track is the source of the counter, so a test that means to be on a
-// slide has to put the scroller there too, as a real click would.
+// The counter follows the track, so a test on a slide puts the scroller there.
 function scrollToSlide(container: HTMLElement, photo: number) {
   scrollLeft = photo * slideWidth
   fireEvent.scroll(trackOf(container))
@@ -208,12 +202,10 @@ describe('Gallery', () => {
     fireEvent.click(slideButtons(container)[1])
 
     expect(gallery.open).toBe(true)
-    // The clicked slide is the visible one: the viewer opens on it, so the
-    // track needs no scroll to be at home.
+    // The viewer opens on the clicked slide: no scroll to be at home.
     expect(screen.getByText('2 / 3')).toBeTruthy()
     expect(slideButtons(container).map((b) => b.tabIndex)).toEqual([-1, 0, -1])
-    // PointerSnare returns the native cursor only over a snare-worthy element,
-    // and the viewer's zoom-out cursor covers the letterbox as well.
+    // The viewer's zoom-out cursor makes dialog and slide snare-worthy.
     expect(gallery.hasAttribute('data-snare')).toBe(true)
     expect(slideButtons(container)[1].hasAttribute('data-snare')).toBe(true)
   })
@@ -227,9 +219,8 @@ describe('Gallery', () => {
 
     fireEvent.click(slideButtons(container)[1])
 
-    // The dialog is in the top layer, where it has no box in the flow: the
-    // anchor takes the carousel's measured height, so the document never
-    // shrinks and the page's scroll position is never clamped.
+    // Top layer has no box in the flow: the anchor takes the measured height,
+    // so the document never shrinks and the scroll position is never clamped.
     expect(anchor.style.display).toBe('block')
     expect(anchor.style.height).toBe('768px')
 
@@ -258,12 +249,11 @@ describe('Gallery', () => {
     fireEvent.click(slideButtons(container)[1])
     expect(gallery.open).toBe(true)
 
-    // The dialog handles Escape itself; the Gallery only listens for the close
-    // event, which is outside React's hands, so its state needs a flush.
+    // Escape is the dialog's; the Gallery only hears the close event, outside
+    // React's hands, so its state needs a flush.
     act(() => gallery.close())
     expect(gallery.open).toBe(false)
-    // The viewer-only attributes are gone, so a closed carousel is no longer
-    // snare-worthy.
+    // Viewer-only attributes gone: a closed carousel is not snare-worthy.
     expect(gallery.hasAttribute('data-snare')).toBe(false)
     expect(gallery.getAttribute('aria-roledescription')).toBe('carousel')
   })
@@ -298,8 +288,7 @@ describe('Gallery', () => {
     fireEvent.click(next())
 
     expect(gallery.open).toBe(true)
-    // A move is aimed at a slide, not at a delta: the absolute offset lands on
-    // the slide no matter where the track was when the press arrived.
+    // Aimed at a slide, not a delta: the offset lands there from wherever.
     expect(scrolls).toEqual([{ left: 2 * slideWidth, behavior: 'smooth' }])
     expect(screen.getByText('3 / 3')).toBeTruthy()
   })
@@ -310,8 +299,7 @@ describe('Gallery', () => {
     scrollToSlide(container, 1)
 
     fireEvent.click(slideButtons(container)[1])
-    // In the viewer the key handler is on the dialog: focus is inside it, and
-    // the dialog keeps Escape for itself.
+    // In the viewer the handler is on the dialog: focus lives inside it.
     fireEvent.keyDown(gallery, { key: 'ArrowRight' })
     expect(gallery.open).toBe(true)
     expect(scrolls).toEqual([{ left: 2 * slideWidth, behavior: 'smooth' }])
@@ -323,9 +311,8 @@ describe('Gallery', () => {
     expect(gallery.open).toBe(false)
   })
 
-  it('leaves the carousel on the photo the viewer ended on, closing mid-move', () => {
-    // The index is written back in a frame; capture the frames the Gallery
-    // asks for so the test can run them when it means to.
+  it('lands on the photo the viewer ended on, Escape closed mid-move', () => {
+    // The index lands in a frame; capture the frames to run on demand.
     const frames: FrameRequestCallback[] = []
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
       frames.push(cb as FrameRequestCallback)
@@ -337,12 +324,11 @@ describe('Gallery', () => {
 
     fireEvent.click(slideButtons(container)[1])
     fireEvent.click(next())
-    // The counter follows the aim, not the track's flight: the third photo at
-    // once, while the smooth scroll is still on its way.
+    // The counter follows the aim, not the flight: photo 3 mid-scroll.
     expect(screen.getByText('3 / 3')).toBeTruthy()
 
-    // Escape lands mid-move. The way out of the top layer resets the scroller
-    // to the start edge, and that echo is not the visitor's photo.
+    // Escape mid-move: leaving the top layer resets the scroller, and that
+    // echo is not the visitor's photo.
     act(() => gallery.close())
     scrollLeft = 0
     fireEvent.scroll(trackOf(container))
@@ -352,6 +338,39 @@ describe('Gallery', () => {
     frames.splice(0, frames.length).forEach((cb) => act(() => cb(0)))
     expect(scrollLeft).toBe(2 * slideWidth)
     expect(screen.getByText('3 / 3')).toBeTruthy()
+  })
+
+  it('lands on the photo the viewer ended on, Escape closed with the track snapped', () => {
+    // Escape reaches the dialog as a key press, before the native close.
+    // Leaving the top layer relayouts viewport-wide slides to content-wide
+    // ones, and scroll-snap carries the viewer's offset to the nearest slide:
+    // at a 1512px viewport and 1152px content width, 3024px becomes 2.625
+    // slides, so the snap's echo reports the photo after the visitor's. Four
+    // photos give the snap an echo to report.
+    const four = [...photos, photo('fall', 'Fall colours over a valley')]
+    const frames: FrameRequestCallback[] = []
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      frames.push(cb as FrameRequestCallback)
+      return frames.length
+    })
+    const { container } = renderGallery(four)
+    const gallery = galleryOf(container)
+    scrollToSlide(container, 1)
+
+    fireEvent.click(slideButtons(container)[1])
+    fireEvent.keyDown(gallery, { key: 'ArrowRight' })
+    expect(screen.getByText('3 / 4')).toBeTruthy()
+
+    // Escape's key press arms the aim. The native close lands after the
+    // relayout's snap echo.
+    scrollLeft = 3 * slideWidth
+    fireEvent.scroll(trackOf(container))
+    expect(screen.getByText('3 / 4')).toBeTruthy()
+    act(() => gallery.close())
+
+    frames.splice(0, frames.length).forEach((cb) => act(() => cb(0)))
+    expect(scrollLeft).toBe(2 * slideWidth)
+    expect(screen.getByText('3 / 4')).toBeTruthy()
   })
 
   it('scrolls exactly one slide per press, from buttons and arrow keys', () => {
