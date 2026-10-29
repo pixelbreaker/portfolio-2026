@@ -46,6 +46,16 @@ _Avoid_: Fake cursor, reticle
 The full-contrast mark on the PointerSnare's border where the visitor's cursor axes cross it; it tracks the raw cursor and is never eased.
 _Avoid_: Marker, crosshair, notch
 
+## Photo gallery
+
+**Gallery**:
+The full-bleed strip of photographs on a Content Page, shown one frame at a time. The Gallery is also the Viewer: the same photographs, the same order, the same navigation.
+_Avoid_: Carousel, slider, slideshow
+
+**Viewer**:
+The state of a Gallery that fills the browser's viewport, where each photo is shown whole and a click anywhere leaves it.
+_Avoid_: Lightbox, modal, fullscreen
+
 ## Splash intro
 
 **SplashIntro**:
