@@ -93,8 +93,7 @@ body:has(.gallery:modal) {
   overflow: hidden;
   scroll-snap-align: start;
   cursor: zoom-in;
-  /* A grid item's automatic minimum size is the image's intrinsic width, which
-     is wider than one slide: the track would stretch past its own slides. */
+  background-color: color-mix(in srgb, var(--color-surface) 30%, transparent);
   min-width: 0;
 }
 
@@ -146,6 +145,12 @@ body:has(.gallery:modal) {
   box-shadow: var(--shadow-sm);
   cursor: pointer;
   transition: opacity 180ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .gallery-button:hover {
+    color: var(--color-accent);
+  }
 }
 
 .gallery-button--prev {
