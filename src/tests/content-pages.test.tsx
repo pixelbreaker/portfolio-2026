@@ -20,13 +20,17 @@ afterEach(() => {
   container = undefined
 })
 
-async function renderContentPage(path: string) {
+async function renderContentHtml(path: string) {
   const router = createRouter({
     routeTree,
     history: createMemoryHistory({ initialEntries: [path] }),
   })
   await router.load()
-  const html = renderToStaticMarkup(<RouterProvider router={router} />)
+  return renderToStaticMarkup(<RouterProvider router={router} />)
+}
+
+async function renderContentPage(path: string) {
+  const html = await renderContentHtml(path)
 
   // Accessible-name computation resolves referenced ids through the owner
   // document, so the rendered markup must be attached before getByRole runs.
@@ -35,7 +39,20 @@ async function renderContentPage(path: string) {
   document.body.append(container)
   return within(container)
 }
+
 describe('content pages', () => {
+  it('serves the splash as a head marker only, never as markup', async () => {
+    const html = await renderContentHtml('/')
+
+    // The overlay is client-rendered, code-split, and covered by the CSS veil
+    // until it mounts, so no splash markup reaches any served document.
+    expect(html).not.toContain('splash-intro')
+    // The head script that stamps the marker the veil keys on cannot be
+    // asserted here: this harness renders with renderToStaticMarkup, and the
+    // legacy renderer emits no <script> at all (the theme script is absent
+    // too). splashGateScript.test.ts covers that contract by running it.
+  })
+
   it('renders a markdown page with frontmatter title, summary, and body', async () => {
     const page = await renderContentPage('/done/portfolio-2026')
 

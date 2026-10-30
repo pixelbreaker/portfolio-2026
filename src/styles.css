@@ -28,6 +28,11 @@
   --shadow-sm: 0 1px 2px light-dark(rgb(23 23 23 / 8%), rgb(0 0 0 / 24%));
   --content-width: 72rem;
 
+  /* Splash veil/overlay stack above page chrome (gallery arrows and
+     pointer-snare dots, both z-index: 1). Keep above the site's highest
+     chrome value; a modal dialog is in the top layer, outside this stack. */
+  --z-splash: 2;
+
   /* UI chrome (nav, headings, buttons) stays sans; reading matter below
      uses Source Serif 4, whose opsz axis the browser drives from the
      rendered size. Georgia is the metric-rough swap fallback. */
@@ -43,6 +48,34 @@
 
 :root[data-theme='dark'] {
   color-scheme: dark;
+}
+
+/* PIXELBREAKER splash veil: covers the page from first paint while the
+   code-split overlay chunk lands. The head script in
+   components/SplashIntro/splashGateScript.ts writes the marker; the retire
+   animation is the watchdog — the veil is modal, and lifts itself with no
+   JS. The overlay reads the same window from VEIL_RETIRE_MS;
+   splashGateScript.test.ts pins the pair. */
+:root[data-splash='show']::after {
+  animation: splash-veil-retire 300ms 4500ms both;
+  background: var(--color-background);
+  content: '';
+  cursor: default;
+  inset: 0;
+  position: fixed;
+  z-index: var(--z-splash);
+}
+
+@keyframes splash-veil-retire {
+  from {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
 }
 
 * {
@@ -356,6 +389,13 @@ a:focus-visible {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+
+  /* The veil belt. The global zeroing above already collapses the retire
+     animation to nothing, so this only insures against a covered page if the
+     head script ran with media queries unavailable. */
+  :root[data-splash='show']::after {
+    display: none;
   }
 }
 

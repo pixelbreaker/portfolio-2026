@@ -1,35 +1,42 @@
 /* PIXELBREAKER splash, ported from the Gatsby site: PIXEL drops in from
-   above, BREAKER from below, hold, then both halves slide back out. The
-   overlay markup is server-rendered on every page; an inline script in
-   <head> settles the once-per-session decision before the first body paint,
-   marking the document data-splash='seen' or 'show' (see SplashIntro.tsx).
-   These rules are what actually gate visibility, so the animation never
-   runs for repeat visits and the page underneath never flashes. */
+   above, BREAKER from below, hold, then both halves slide back out. These
+   rules gate visibility on the marker: 'show'/'seen' never paint, 'live'
+   (claimed by the overlay as it mounts) does. */
 
-/* Unmarked (scripting off) or already seen: never paint the overlay. */
+/* Unmarked (scripting off), seen, or pre-'live': never paint the overlay. */
 .splash-intro {
   display: none;
 }
 
-:root[data-splash='seen'] .splash-intro {
-  display: none;
-}
-
-:root[data-splash='show'] .splash-intro {
+/* Modal, with its own watchdog: splash-overlay-retire uncovers the page at
+   6s (JS dismisses at 5.73s). Pinned by SplashIntroGate.test.tsx. */
+:root[data-splash='live'] .splash-intro {
   align-items: center;
+  animation: splash-overlay-retire 300ms 6000ms forwards;
   background: var(--color-background);
   color: var(--color-text);
   bottom: 0;
+  cursor: default;
   display: flex;
   justify-content: center;
   left: 0;
-  /* The overlay paints before hydration, so it must never trap the page:
-     if the bundle fails to load, nothing would ever dismiss it. */
-  pointer-events: none;
   position: fixed;
   right: 0;
   top: 0;
   transition: opacity 300ms ease;
+  z-index: var(--z-splash);
+}
+
+@keyframes splash-overlay-retire {
+  from {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
 }
 
 .splash-intro--fade {

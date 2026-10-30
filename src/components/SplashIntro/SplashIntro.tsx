@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useLayoutEffect, useMemo, useState } from 'react'
 
 import './SplashIntro.css'
+import { VEIL_RETIRE_MS } from './splashGateScript'
 
 import logoA from './logo-a.svg?raw'
 import logoB from './logo-b.svg?raw'
@@ -11,27 +12,6 @@ import logoL from './logo-l.svg?raw'
 import logoP from './logo-p.svg?raw'
 import logoR from './logo-r.svg?raw'
 import logoX from './logo-x.svg?raw'
-
-export const SESSION_KEY = 'portfolio-splash-seen'
-
-// Runs in the document head, before the first body paint, settling the
-// once-per-session decision while nothing is on screen yet. The overlay
-// markup itself is server-rendered on every page (this is what keeps a first
-// visit from flashing the page underneath), so the script either stamps the
-// flag and marks data-splash='show', or — when the flag already exists —
-// marks data-splash='seen', a CSS rule that hides the overlay before the
-// body ever paints, so no animation and no overlay show for repeat visits.
-// Mirrors the head-side theme script in ../use-theme.
-export const splashInitializationScript = `(() => {
-  let seen = false;
-  try {
-    seen = sessionStorage.getItem('${SESSION_KEY}') !== null;
-    if (!seen) sessionStorage.setItem('${SESSION_KEY}', '1');
-  } catch {
-    // Storage unavailable (private mode): still show once per load.
-  }
-  document.documentElement.dataset.splash = seen ? 'seen' : 'show';
-})();`
 
 const GLYPHS = {
   p: logoP,
@@ -79,11 +59,9 @@ const FADE_DURATION = 300
 
 type Phase = 'intro' | 'outro' | 'fade'
 
-// The overlay is server-rendered, so per-letter inline styles ship in the
-// HTML and must match the client pass exactly — Math.random() would
-// desynchronize the two and force React to discard/re-render every letter,
-// seeking the running animations mid-flight. A coprime stride staggers the
-// letters deterministically; each keeps its rhythm through the outro.
+// Deterministic, not Math.random(): stagger and duration are settled once at
+// module evaluation, and the outro swaps animation names on the same inline
+// styles, so a letter keeps its rhythm on the way out.
 const MAX_STAGGER = 400
 const STAGGER_STRIDE = 137
 const BASE_DURATION = 520
@@ -119,12 +97,10 @@ const STOP_STYLE = {
   '--stop-blink-cycles': `${BLINK_CYCLES}`,
 } as React.CSSProperties
 
-export function SplashIntro() {
-  // SSR and client renders are identical (deterministic timings, always
-  // present markup); visibility itself is CSS-driven via the head script's
-  // marker, so the 'seen' case costs nothing and never animates. Only the
-  // phase chain is React's job, and it runs only when this document was
-  // marked 'show'.
+// The overlay's CSS watchdog in SplashIntro.css; above the 5733ms JS
+// dismissal, so it never fires normally. Its delay is pinned to this.
+export const OVERLAY_RETIRE_MS = 6000
+export default function SplashIntro() {
   const [phase, setPhase] = useState<Phase>('intro')
   const [dismissed, setDismissed] = useState(false)
 
@@ -145,16 +121,34 @@ export function SplashIntro() {
     }))
   }, [])
 
-  useEffect(() => {
-    if (document.documentElement.dataset.splash !== 'show') return
-    // The intro runs from first paint (marker is set pre-paint), so the
-    // chain starts here; OUTRO_DELAY is derived from the stop's timings, so
-    // the caret has blinked for exactly BLINK_PERIOD * BLINK_CYCLES first.
+  useLayoutEffect(() => {
+    const root = document.documentElement
+    // Late arrival: the veil's stamped clock passed VEIL_RETIRE_MS, so the
+    // base CSS keeps this unpainted; unmark and go away on the next task.
+    const veilStart = Number(root.dataset.splashAt)
+    if (
+      root.dataset.splash === 'seen' ||
+      (Number.isFinite(veilStart) && Date.now() - veilStart >= VEIL_RETIRE_MS)
+    ) {
+      const unmount = window.setTimeout(() => {
+        delete root.dataset.splash
+        setDismissed(true)
+      }, 0)
+      return () => window.clearTimeout(unmount)
+    }
+    // 'live' retires the veil and paints the overlay pre-paint. An already
+    // 'live' marker is our own claim (StrictMode re-invoke): restart, don't tear down.
+    root.dataset.splash = 'live'
     const timers = [
       window.setTimeout(() => setPhase('outro'), OUTRO_DELAY),
       window.setTimeout(() => setPhase('fade'), OUTRO_DELAY + OUTRO_DURATION),
       window.setTimeout(
         () => setDismissed(true),
+        OUTRO_DELAY + OUTRO_DURATION + FADE_DURATION,
+      ),
+      // Dismissal is final: clear the marker so the snare scoping releases.
+      window.setTimeout(
+        () => delete root.dataset.splash,
         OUTRO_DELAY + OUTRO_DURATION + FADE_DURATION,
       ),
     ]

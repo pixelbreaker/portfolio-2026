@@ -18,7 +18,9 @@
     pointer-events: none;
     will-change: transform;
     opacity: 0;
-    transition: border-color 180ms ease, opacity 300ms ease;
+    transition:
+      border-color 180ms ease,
+      opacity 300ms ease;
   }
 
   /* Hidden until the pointer first moves: <html> gains .pointer-snare-on
@@ -83,6 +85,14 @@
   .pointer-snare-cursor-none,
   .pointer-snare-cursor-none * {
     cursor: none !important;
+  }
+
+  /* The splash covers the dot; its default cursor must beat the hide. */
+  :root[data-splash='show'].pointer-snare-cursor-none,
+  :root[data-splash='show'].pointer-snare-cursor-none *,
+  :root[data-splash='live'].pointer-snare-cursor-none,
+  :root[data-splash='live'].pointer-snare-cursor-none * {
+    cursor: default !important;
   }
 
   .pointer-snare--snared {

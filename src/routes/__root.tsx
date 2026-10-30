@@ -10,10 +10,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { HeaderLogo } from '../components/HeaderLogo'
 import { MaterialIcon } from '../components/MaterialIcon'
 import { PointerSnare } from '../components/PointerSnare'
-import {
-  SplashIntro,
-  splashInitializationScript,
-} from '../components/SplashIntro'
+import { SplashIntroGate, splashGateScript } from '../components/SplashIntro'
 import { contentSections, sectionLabel } from '../content'
 import { themeInitializationScript, useTheme } from '../use-theme'
 import stylesHref from '../styles.css?url'
@@ -76,7 +73,7 @@ function Shell({ children }: { children: React.ReactNode }) {
         <ThemeToggle />
       </header>
       {children}
-      <SplashIntro />
+      <SplashIntroGate />
       <PointerSnare />
       {import.meta.env.DEV && <TanStackRouterDevtools />}
     </div>
@@ -91,9 +88,7 @@ function RootComponent() {
         <script
           dangerouslySetInnerHTML={{ __html: themeInitializationScript }}
         />
-        <script
-          dangerouslySetInnerHTML={{ __html: splashInitializationScript }}
-        />
+        <script dangerouslySetInnerHTML={{ __html: splashGateScript }} />
       </head>
       <body>
         <Shell>
