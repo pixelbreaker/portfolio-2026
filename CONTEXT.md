@@ -24,6 +24,7 @@ _Avoid_: Category, tag, collection
 
 **PointerSnare**:
 The overlay that trails the visitor's pointer and dresses up around the Interactive Element under it.
+Mounted client-only, on devices with a fine pointer; never present on touch-only devices or the server.
 _Avoid_: Lasso, custom cursor, hover ring
 
 **Snare**:

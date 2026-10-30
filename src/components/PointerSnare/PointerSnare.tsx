@@ -4,11 +4,10 @@ import './PointerSnare.css'
 
 const SNARE_SELECTOR = 'a, button, [data-snare], [data-snare-group]'
 const SNARE_GROUP_SELECTOR = '[data-snare-group]'
-const POINTER_QUERY = '(hover: hover) and (pointer: fine)'
 const FREE_HALF = 16 // half the free ring size; matches CSS .pointer-snare
 const SNARE_PAD = 8 // 0.5rem clearance around a snared element
 const MIN_SPAN = 4
-const TICK_HALF = 1.5 // half the tick length; matches CSS .pointer-snare-tick
+const TICK_HALF = 2.5 // half the tick length; matches CSS .pointer-snare-tick
 const PRESS_OUT = 3 // extra reach while a mouse button is held
 
 const LEAD_RATE = 0.8
@@ -86,15 +85,9 @@ export function PointerSnare() {
     const dot = dotRef.current
     const sidesTick = sidesTickRef.current
     const endsTick = endsTickRef.current
-    if (
-      !el ||
-      !dot ||
-      !sidesTick ||
-      !endsTick ||
-      !window.matchMedia(POINTER_QUERY).matches
-    ) {
-      return
-    }
+    // Pointer capability is the gate's contract: this component mounts
+    // only on devices with a fine pointer, so no local media check.
+    if (!el || !dot || !sidesTick || !endsTick) return
     const root = document.documentElement
 
     // The ring is four independent friction edges; the span derives from
