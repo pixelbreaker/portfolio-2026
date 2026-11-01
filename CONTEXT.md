@@ -50,12 +50,20 @@ _Avoid_: Marker, crosshair, notch
 ## Key interaction
 
 **Key Hint**:
-The one underlined letter inside an Interactive Element's label naming the key that focuses and activates it. Only Interactive Elements with visible text carry one, and no two on screen at once share a letter.
+The single letter of an Interactive Element's Label naming the key that activates it. Key Hints reach only the default Interactive Elements, links and buttons, and only those with a Label; no two on screen at once share a letter.
 _Avoid_: Access key, hotkey, shortcut, kbd badge
 
+**Key Claim**:
+An Interactive Element's right to a letter: the first claimant in document order takes the leftmost letter of its Label still unclaimed, and with nothing left to claim it carries no Key Hint. A claim is one-way, so an element that yields its letter keeps the new one and never takes back a letter a departure vacated.
+_Avoid_: Priority, reservation, slot
+
 **Keyed Element**:
-An Interactive Element wearing a Key Hint; its letter never shifts while it stays on the page.
+An Interactive Element wearing a Key Hint. Its letter holds while the elements before it in document order hold theirs, so it shifts only when a newcomer claims its letter.
 _Avoid_: Target, shortcut host
+
+**Label**:
+The words of an Interactive Element that a visitor reads on screen. An icon-only control has an accessible name but no Label, so it carries no Key Hint.
+_Avoid_: Accessible name, aria-label, caption
 
 ## Photo gallery
 

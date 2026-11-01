@@ -150,6 +150,32 @@ describe('KeyHints', () => {
     expect(hints(container)).toEqual(['D', 'o'])
   })
 
+  // A Key Claim is one-way: a newcomer to the left takes D and Done moves to
+  // o, and Done keeps o after the newcomer leaves.
+  it('hands a letter to a newcomer, and never takes it back', async () => {
+    const { container } = render(
+      <>
+        <KeyHints />
+        <div>
+          <a href="#/done">Done</a>
+        </div>
+      </>,
+    )
+    await settled()
+    expect(hints(container)).toEqual(['D'])
+
+    const newcomer = document.createElement('a')
+    newcomer.href = '#/dodo'
+    newcomer.textContent = 'Dodo'
+    container.querySelector('div')!.prepend(newcomer)
+    await settled()
+    expect(hints(container)).toEqual(['D', 'o'])
+
+    newcomer.remove()
+    await settled()
+    expect(hints(container)).toEqual(['o'])
+  })
+
   it('skips icon-only controls, which carry no visible text', async () => {
     const { container } = render(
       <>
