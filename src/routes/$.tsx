@@ -74,7 +74,6 @@ function SectionPage({ section }: { section: string }) {
   const label = sectionLabel(section)
   return (
     <section className="content-page" aria-labelledby="section-title">
-      <p className="eyebrow">Portfolio</p>
       <h1 id="section-title">{label}</h1>
       <p className="page-intro">
         Everything published in the {label.toLowerCase()} section.

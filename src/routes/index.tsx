@@ -7,7 +7,6 @@ export const Route = createFileRoute('/')({
 function HomePage() {
   return (
     <section className="content-page home-page" aria-labelledby="home-title">
-      <p className="eyebrow">Portfolio</p>
       <h1 id="home-title">Work, and the thinking behind it.</h1>
       <p className="page-intro">
         Explore projects, learn about the work, and find out more about this

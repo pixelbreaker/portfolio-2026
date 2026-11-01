@@ -8,7 +8,6 @@ export const Route = createFileRoute('/about')({
 function AboutPage() {
   return (
     <article className="content-page">
-      <p className="eyebrow">About</p>
       <h1>About this portfolio</h1>
       <p className="page-intro">
         A place for the work and the thinking behind it. Browse projects to see

@@ -105,7 +105,6 @@ function RootComponent() {
 function NotFoundComponent() {
   return (
     <section className="empty-state" aria-labelledby="not-found-title">
-      <p className="eyebrow">404</p>
       <h1 id="not-found-title">Page not found</h1>
       <Link className="text-link" to="/">
         Back to home
