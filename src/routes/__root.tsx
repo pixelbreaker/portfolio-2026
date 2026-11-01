@@ -9,6 +9,7 @@ import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import { HeaderLogo } from '../components/HeaderLogo'
 import { MaterialIcon } from '../components/MaterialIcon'
+import { KeyHintsGate } from '../components/KeyHints'
 import { PointerSnareGate } from '../components/PointerSnare'
 import { SplashIntroGate, splashGateScript } from '../components/SplashIntro'
 import { contentSections, sectionLabel } from '../content'
@@ -75,7 +76,10 @@ function Shell({ children }: { children: React.ReactNode }) {
       {children}
       <SplashIntroGate />
       <PointerSnareGate />
-      {import.meta.env.DEV && <TanStackRouterDevtools />}
+      <KeyHintsGate />
+      <div data-keyhints-exclude>
+        {import.meta.env.DEV && <TanStackRouterDevtools />}
+      </div>
     </div>
   )
 }

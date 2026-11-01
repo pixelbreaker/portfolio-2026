@@ -65,4 +65,31 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    // The key-hint chunk stays split: a static import of the component (its
+    // label walker and DOM splits) or its CSS from outside the gate silently
+    // re-merges them into the root chunk. The gate's import() is the split.
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: [
+      'src/components/KeyHints/KeyHintsGate.tsx',
+      'src/components/KeyHints/KeyHints.tsx',
+      // Test modules are never bundled, so the split is not a property of them.
+      'src/components/KeyHints/*.test.tsx',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        { patterns: ['**/KeyHints.tsx', '**/KeyHints.css'] },
+      ],
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            'ImportDeclaration[source.value=/(^\\.\\/|KeyHints\\/)KeyHints(\\.tsx)?$/]',
+          message:
+            'Import KeyHintsGate, not the code-split KeyHints component.',
+        },
+      ],
+    },
+  },
 )

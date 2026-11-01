@@ -47,6 +47,16 @@ _Avoid_: Fake cursor, reticle
 The full-contrast mark on the PointerSnare's border where the visitor's cursor axes cross it; it tracks the raw cursor and is never eased.
 _Avoid_: Marker, crosshair, notch
 
+## Key interaction
+
+**Key Hint**:
+The one underlined letter inside an Interactive Element's label naming the key that focuses and activates it. Only Interactive Elements with visible text carry one, and no two on screen at once share a letter.
+_Avoid_: Access key, hotkey, shortcut, kbd badge
+
+**Keyed Element**:
+An Interactive Element wearing a Key Hint; its letter never shifts while it stays on the page.
+_Avoid_: Target, shortcut host
+
 ## Photo gallery
 
 **Gallery**:

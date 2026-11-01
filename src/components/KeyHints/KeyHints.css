@@ -1,0 +1,8 @@
+/* The Key Hint: the letter that activates a Keyed Element. It sits inside a
+   label's own text, so only colour, thickness and offset are added. */
+.key-hint {
+  text-decoration: underline;
+  text-decoration-thickness: 0.1rem;
+  text-underline-offset: 0.25rem;
+  text-decoration-skip-ink: none;
+}
