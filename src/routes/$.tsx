@@ -56,10 +56,9 @@ function ContentPage({ section, slug }: { section: string; slug: string }) {
     <article className="content-page">
       <p className="back-link">
         <Link to="/$" params={{ _splat: section }}>
-          &larr; {sectionLabel(section)}
+          ../{section}
         </Link>
       </p>
-      <p className="eyebrow">{sectionLabel(page.section)}</p>
       <h1>{page.title}</h1>
       {page.summary && <p className="page-intro">{page.summary}</p>}
       {page.body.kind === 'markdown' ? (

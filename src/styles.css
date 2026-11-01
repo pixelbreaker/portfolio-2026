@@ -207,7 +207,6 @@ a:focus-visible {
 .page-main {
   display: grid;
   min-height: calc(100vh - 6rem);
-  place-items: center;
   padding: var(--space-7) 0;
 }
 
@@ -299,7 +298,7 @@ a:focus-visible {
   margin-top: var(--space-7);
 }
 
-.prose > :first-child {
+.prose> :first-child {
   margin-top: 0;
 }
 
@@ -382,6 +381,7 @@ a:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
