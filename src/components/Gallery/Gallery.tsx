@@ -29,6 +29,10 @@ export function Gallery({
   // The photo a scripted move has aimed the track at, and is waiting for it to
   // reach; null while the visitor drives the track.
   const targetRef = useRef<number | null>(null)
+  // The slide buttons, addressable so a key press can move focus onto the
+  // photo the track is landing on.
+  const slideEls = useRef<(HTMLButtonElement | null)[]>([])
+
   // While a top-layer move is placing the track, the track is the Gallery's:
   // its echoes land at widths the index was not meant for, and the align loop
   // lands the index itself on release.
@@ -174,6 +178,12 @@ export function Gallery({
     (direction: 1 | -1) => scrollToPhoto(indexRef.current + direction),
     [scrollToPhoto],
   )
+  // Keyboard navigation only: the photo in view is the visitor's target, so
+  // focus rides the counter and Enter opens it. preventScroll because the
+  // scripted move is placing the track; focus must not fight it.
+  const focusSlide = useCallback((photo: number) => {
+    slideEls.current[photo]?.focus({ preventScroll: true })
+  }, [])
 
   const onKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
@@ -188,12 +198,14 @@ export function Gallery({
       if (event.key === 'ArrowRight' && !atEnd) {
         event.preventDefault()
         scrollBySlide(1)
+        focusSlide(indexRef.current)
       } else if (event.key === 'ArrowLeft' && index > 0) {
         event.preventDefault()
         scrollBySlide(-1)
+        focusSlide(indexRef.current)
       }
     },
-    [atEnd, index, scrollBySlide, viewer],
+    [atEnd, focusSlide, index, scrollBySlide, viewer],
   )
 
   if (photos.length === 0) return null
@@ -239,6 +251,9 @@ export function Gallery({
           >
             {photos.map((photo, i) => (
               <button
+                ref={(el) => {
+                  slideEls.current[i] = el
+                }}
                 className="gallery-slide"
                 key={photo.id}
                 // A dialog button defaults to submit, and submitting closes

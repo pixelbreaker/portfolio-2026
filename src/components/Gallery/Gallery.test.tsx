@@ -100,13 +100,22 @@ beforeEach(() => {
       },
     },
   })
+  // The focus gate reads computed display off jsdom's own cascade, where the
+  // UA's rule for a closed dialog outranks the author sheet's. A browser
+  // honours the author sheet, so the closed carousel's paint belongs to the shim.
+  const closedPaint = document.createElement('style')
+  closedPaint.textContent = '.gallery{display:block !important}'
+  document.head.append(closedPaint)
+  cleanups.push(() => closedPaint.remove())
 })
 
-// Installed per test, taken off again, leaving the prototype as shipped.
+// Installed per test, taken off again, leaving the prototype and head as shipped.
+const cleanups: (() => void)[] = []
 const dialogShimKeys = ['showModal', 'close'] as const
 
 afterEach(() => {
   vi.restoreAllMocks()
+  cleanups.splice(0).forEach((off) => off())
   for (const key of dialogShimKeys) {
     Reflect.deleteProperty(window.HTMLDialogElement.prototype, key)
   }
@@ -386,6 +395,30 @@ describe('Gallery', () => {
     fireEvent.keyDown(track, { key: 'ArrowLeft' })
     expect(scrolls.at(-1)).toEqual({ left: slideWidth, behavior: 'smooth' })
     expect(screen.getByText('2 / 3')).toBeTruthy()
+  })
+
+  it('moves focus to the photo an arrow key brings into view', () => {
+    const { container } = renderGallery(photos)
+    const track = trackOf(container)
+    const buttons = slideButtons(container)
+    buttons[0].focus()
+
+    fireEvent.keyDown(track, { key: 'ArrowRight' })
+    expect(document.activeElement).toBe(buttons[1])
+
+    fireEvent.keyDown(track, { key: 'ArrowLeft' })
+    expect(document.activeElement).toBe(buttons[0])
+  })
+
+  it('keeps focus off the slide the track moves to by itself', () => {
+    const { container } = renderGallery(photos)
+    const buttons = slideButtons(container)
+    buttons[0].focus()
+
+    scrollToSlide(container, 1)
+
+    expect(screen.getByText('2 / 3')).toBeTruthy()
+    expect(document.activeElement).toBe(buttons[0])
   })
 
   it('ignores the arrow key that points past the end of the track', () => {
