@@ -10,8 +10,7 @@ const MIN_SPAN = 4
 const TICK_HALF = 2.5 // half the tick length; matches CSS .pointer-snare-tick
 const PRESS_OUT = 3 // extra reach while a mouse button is held
 
-const LEAD_RATE = 0.8
-const LEAD_FRICTION = 0.2
+// No lead tuning: a leading edge skips easing entirely (see step()).
 const TRAIL_RATE = 0.03
 const TRAIL_FRICTION = 0.6
 
@@ -20,8 +19,8 @@ const TRAIL_FRICTION = 0.6
 const SNARE_RATE = 0.06
 const SNARE_FRICTION = 0.6
 
-// Each edge's rate/friction are themselves eased, so reversing direction
-// (which swaps an edge between leading and trailing) never snaps it.
+// Trailing edges ease their rate/friction, so reversing direction
+// (which swaps an edge between leading and trailing) never snaps them.
 const RATE_RATE = 0.03
 const RATE_FRICTION = 0.6
 const PRECISION = 0.05
@@ -35,6 +34,7 @@ interface Edge {
   friction: number
   targetRate: number
   targetFriction: number
+  leading: boolean
 }
 
 function makeEdge(): Edge {
@@ -47,10 +47,19 @@ function makeEdge(): Edge {
     friction: TRAIL_FRICTION,
     targetRate: TRAIL_RATE,
     targetFriction: TRAIL_FRICTION,
+    leading: false,
   }
 }
 
 function step(edge: Edge): boolean {
+  // The leading edge (ahead of the pointer's direction of travel) uses
+  // no friction at all: it sits exactly on its end the instant it moves.
+  if (edge.leading) {
+    edge.current = edge.end
+    edge.speed = 0
+    edge.rateSpeed = 0
+    return false
+  }
   const rateAccel = (edge.targetRate - edge.rate) * RATE_RATE
   edge.rateSpeed = edge.rateSpeed * RATE_FRICTION + rateAccel
   edge.rate += edge.rateSpeed
@@ -138,8 +147,8 @@ export function PointerSnare() {
         for (const edge of edges) {
           edge.targetRate = SNARE_RATE
           edge.rate = SNARE_RATE
+          edge.leading = false
           edge.targetFriction = SNARE_FRICTION
-          edge.friction = SNARE_FRICTION
         }
       }
       left.end = x - reach
@@ -172,11 +181,12 @@ export function PointerSnare() {
       return true
     }
 
-    // Leading edges chase hard, trailing edges lag; each edge's tuning
-    // is itself eased so a direction swap is a force ramp, not a snap.
+    // Leading edges snap onto the pointer with no easing; trailing edges
+    // lag behind it. Only trailing tuning eases, so a swap never snaps.
     const setLeadStates = (dx: number, dy: number) => {
       if (target || pressed) {
         for (const edge of edges) {
+          edge.leading = false
           edge.targetRate = SNARE_RATE
           edge.rate = SNARE_RATE
           edge.targetFriction = SNARE_FRICTION
@@ -184,14 +194,14 @@ export function PointerSnare() {
         }
         return
       }
-      left.targetRate = dx < 0 ? LEAD_RATE : TRAIL_RATE
-      left.targetFriction = dx < 0 ? LEAD_FRICTION : TRAIL_FRICTION
-      right.targetRate = dx > 0 ? LEAD_RATE : TRAIL_RATE
-      right.targetFriction = dx > 0 ? LEAD_FRICTION : TRAIL_FRICTION
-      top.targetRate = dy < 0 ? LEAD_RATE : TRAIL_RATE
-      top.targetFriction = dy < 0 ? LEAD_FRICTION : TRAIL_FRICTION
-      bottom.targetRate = dy > 0 ? LEAD_RATE : TRAIL_RATE
-      bottom.targetFriction = dy > 0 ? LEAD_FRICTION : TRAIL_FRICTION
+      for (const edge of edges) {
+        edge.targetRate = TRAIL_RATE
+        edge.targetFriction = TRAIL_FRICTION
+      }
+      left.leading = dx < 0
+      right.leading = dx > 0
+      top.leading = dy < 0
+      bottom.leading = dy > 0
     }
 
     const animate = () => {
