@@ -118,13 +118,51 @@ describe('content pages', () => {
     expect(nav.getByRole('link', { name: 'Thought' })).toBeTruthy()
   })
 
-  it('lists the gallery page in the seen section without rendering it', async () => {
-    // The card listing only; the gallery body needs the imagetools plugin,
-    // which the test pipeline deliberately does not run.
-    const page = await renderContentPage('/seen')
+  // The carousel is a <dialog> closed on the page, and this harness serves
+  // markup without the author sheet that makes a closed dialog paint, so its
+  // subtree is hidden and no accessible name is computed for it; the carousel
+  // is found by the role and label the component writes.
+  const carousel = (name: string) =>
+    container!.querySelector<HTMLDialogElement>(
+      `dialog.gallery[role="region"][aria-label="${name}"]`,
+    )
 
-    expect(page.getByRole('heading', { level: 1, name: 'Seen' })).toBeTruthy()
-    expect(page.getByRole('link', { name: 'Canada, 2026' })).toBeTruthy()
+  it('renders the gallery page, pairing renditions with alt.json', async () => {
+    const page = await renderContentPage('/seen/canada-2026')
+
+    // The imagetools query runs in the test pipeline, so the gallery body
+    // renders for real: alt.json's captions become the images' names.
+    expect(carousel('Photographs from Canada, 2026')).toBeTruthy()
+    expect(
+      page.getByRole('img', {
+        name: 'Turquoise mountain lake ringed by evergreen forest and rock',
+        hidden: true,
+      }),
+    ).toBeTruthy()
+    expect(page.getByText('1 / 11')).toBeTruthy()
+    // Roving tab order: the carousel contributes exactly one tab stop.
+    expect(
+      container!.querySelectorAll('.gallery-slide[tabindex="0"]'),
+    ).toHaveLength(1)
+  })
+
+  it('mixes markdown prose and a gallery in one component page', async () => {
+    const page = await renderContentPage('/done/rapha')
+
+    expect(
+      page.getByRole('heading', { level: 1, name: 'Rapha.cc website' }),
+    ).toBeTruthy()
+    // The GFM heading and table come from the Markdown blocks, not from JSX.
+    expect(
+      page.getByRole('heading', { level: 2, name: 'The screens' }),
+    ).toBeTruthy()
+    expect(page.getByRole('columnheader', { name: 'Screen' })).toBeTruthy()
+    // The gallery sits between the prose blocks, with its own label.
+    expect(carousel('Screenshots from the Rapha.cc migration')).toBeTruthy()
+    expect(page.getByText('1 / 4')).toBeTruthy()
+    // Each Markdown block carries the prose wrapper, so the page typesets
+    // exactly like the .md pages.
+    expect(container!.querySelectorAll('.prose')).toHaveLength(2)
   })
 
   it('shows the not-found page for an unknown path', async () => {

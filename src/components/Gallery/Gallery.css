@@ -82,11 +82,12 @@ body:has(.gallery:modal) {
   display: none;
 }
 
-/* 3:2 reserves space before decode, so the page never jumps. The slide is the
-   open target: a button with nothing button-like left about it. */
+/* 3:2 reserves space before decode, so the page never jumps; --gallery-aspect
+   lets a page override the ratio (`aspect` on Gallery). The slide is the open
+   target: a button with nothing button-like left about it. */
 .gallery-slide {
   display: block;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: var(--gallery-aspect, 3 / 2);
   padding: 0;
   border: 0;
   background: none;
@@ -114,7 +115,7 @@ body:has(.gallery:modal) {
 
 .gallery:modal .gallery-track {
   height: 100%;
-  /* Auto rows size to the intrinsic 3:2 box, taller than the viewport: the
+  /* Auto rows size to the intrinsic ratio box, taller than the viewport: the
      photo would crop instead of letterbox. */
   grid-template-rows: 100%;
 }

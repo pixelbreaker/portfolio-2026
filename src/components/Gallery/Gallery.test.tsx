@@ -122,9 +122,9 @@ afterEach(() => {
   cleanup()
 })
 
-function renderGallery(list: GalleryPhoto[], label = 'Album') {
+function renderGallery(list: GalleryPhoto[], label = 'Album', aspect?: string) {
   slides = list.length
-  return render(<Gallery photos={list} label={label} />)
+  return render(<Gallery photos={list} label={label} aspect={aspect} />)
 }
 
 function trackOf(container: HTMLElement) {
@@ -201,6 +201,27 @@ describe('Gallery', () => {
     const { container } = renderGallery(photos)
 
     expect(slideButtons(container).map((b) => b.tabIndex)).toEqual([0, -1, -1])
+  })
+
+  it('leaves the sheet ratio in place when no aspect is given', () => {
+    const { container } = renderGallery(photos)
+
+    expect(galleryOf(container).getAttribute('style')).toBeNull()
+  })
+
+  it('carries an aspect override on the dialog for the slides to inherit', () => {
+    const { container } = renderGallery(photos, 'Album', '16 / 9')
+
+    expect(
+      galleryOf(container).style.getPropertyValue('--gallery-aspect'),
+    ).toBe('16 / 9')
+    // Only the dialog is painted: the sheet is the ratio's consumer.
+    const boxes = [...container.querySelectorAll('.gallery-slide')]
+    expect(boxes.map((s) => s.getAttribute('style'))).toEqual([
+      null,
+      null,
+      null,
+    ])
   })
 
   it('opens the viewer on the clicked photo, leaving one tab stop', () => {

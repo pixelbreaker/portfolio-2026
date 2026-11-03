@@ -1,10 +1,11 @@
+import { imagetools } from 'vite-imagetools'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
 
-// Kept separate from vite.config.ts: tests need the React transform and ?raw
-// imports only, not the TanStack Start/Netlify plugins.
+// Kept separate from vite.config.ts: tests need the React transform, ?raw
+// imports and the image pipeline, not the TanStack Start/Netlify plugins.
 export default defineConfig({
-  plugins: [react()],
+  plugins: [imagetools(), react()],
   test: {
     environment: 'jsdom',
     setupFiles: ['src/test-setup.ts'],

@@ -248,12 +248,13 @@ a:focus-visible {
   font-size: clamp(2.5rem, 7vw, 4.5rem);
   letter-spacing: -0.055em;
   line-height: 0.9;
+  margin-left: -0.2rem;
 }
 
 .page-intro {
   max-width: 40rem;
   font-family: var(--font-serif);
-  margin: var(--space-5) 0 0;
+  margin: var(--space-1) 0 0;
   color: var(--color-muted);
   font-size: clamp(1.125rem, 2.5vw, 1.375rem);
   line-height: 1.6;
@@ -289,6 +290,16 @@ a:focus-visible {
   font-family: var(--font-serif);
   color: var(--color-muted);
   line-height: 1.7;
+}
+
+/* The date is chrome, not reading matter: sans, small, above the summary. The
+   two-class selector is needed to outrank `.work-card p`. */
+.work-card .work-card-date {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-ui);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
 }
 
 .prose {

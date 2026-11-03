@@ -1,5 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react'
 import { MaterialIcon } from '../MaterialIcon'
 import './Gallery.css'
 import type { GalleryPhoto } from './photos'
@@ -11,9 +16,12 @@ const SIZES = '(min-width: 72rem) 72rem, 100vw'
 export function Gallery({
   photos,
   label,
+  aspect,
 }: {
   photos: GalleryPhoto[]
   label: string
+  /** CSS `aspect-ratio` for the carousel's slide box; the sheet's default. */
+  aspect?: string
 }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const track = useRef<HTMLDivElement>(null)
@@ -225,6 +233,10 @@ export function Gallery({
         // snare-worthy. Never data-snare-group: it wins the closest() search
         // and the slides inside would stop snaring on their own.
         // data-snare={viewer ? '' : null}
+        // The ratio rides the dialog: the property inherits to the slides, and
+        // the measured carousel height carries it into the anchor. Unset leaves
+        // the value undefined, so React writes no style attribute.
+        style={{ '--gallery-aspect': aspect } as CSSProperties}
         tabIndex={-1}
         onClose={() => {
           // Keep an aim armed by Escape's key press; the close event lands

@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from '@tanstack/react-router'
 
 import {
   getContentPage,
+  publishedLabel,
   sectionLabel,
   sectionPages,
   trimSlashes,
@@ -86,6 +87,15 @@ function SectionPage({ section }: { section: string }) {
                 {page.title}
               </Link>
             </h2>
+            {/* datetime keeps the machine-readable ISO date; the text is the
+                month and year the reader sees. */}
+            {page.published && (
+              <p className="work-card-date">
+                <time dateTime={page.published}>
+                  {publishedLabel(page.published)}
+                </time>
+              </p>
+            )}
             <p>{page.summary}</p>
           </li>
         ))}
