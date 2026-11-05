@@ -29,12 +29,7 @@ export default function Rapha() {
     <>
       <Markdown
         source={`
-Full site migration from monolith to composable commerce: the storefront's
-core shopping pages were rebuilt on the new stack, each template cut over one
-at a time.
-
-Prose lives in the \`Markdown\` component, the photographs in the
-\`Gallery\` between them, so a page can carry both without a second template.
+Full site migration from Java monolith to composable commerce full TypeScript stack. Lead the project right from switching to a central monorepo setup with NX through to reimplementation of existing functionality with multiple third party SaaS systems.
 `}
       />
       <Gallery
@@ -44,19 +39,9 @@ Prose lives in the \`Markdown\` component, the photographs in the
       />
       <Markdown
         source={`
-## The screens
+## The Process
 
-| Screen    | Path          | What the page carries                        |
-| --------- | ------------- | -------------------------------------------- |
-| Home      | \`01_home\`      | Campaign hero, product rows, category entries |
-| Listing   | \`02_plp\`       | Category tabs, filters, sort, product grid   |
-| Product   | \`03_pdp\`       | Image gallery, price, colour and size choices |
-| Editorial | \`04_editorial\` | Article headline, standfirst, photographs    |
 
-## Write the story here
-
-The headings above are placeholders for the project write-up: the problem,
-the approach, what shipped, and what it changed.
 `}
       />
     </>
