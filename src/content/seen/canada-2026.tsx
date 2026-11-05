@@ -4,6 +4,8 @@ import {
   type PictureRendition,
 } from '../../components/Gallery/photos'
 
+import type { ContentMeta } from '../../content'
+
 import alt from './canada-2026/alt.json'
 
 // Five renditions in three formats per photo; the widths must match the
@@ -17,9 +19,11 @@ const renditions = import.meta.glob<PictureRendition>(
   },
 )
 
-export const title = 'Canada, 2026'
-export const summary =
-  'Mountain lakes, forest roads and meadow wildlife from a 2026 trip through Canada.'
+export const meta = {
+  title: 'Canada, 2026',
+  summary:
+    'Mountain lakes, forest roads and meadow wildlife from a 2026 trip through Canada.',
+} satisfies ContentMeta
 
 export default function Canada2026() {
   return (

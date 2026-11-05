@@ -38,6 +38,15 @@ export default tseslint.config(
     },
   },
   {
+    // Content pages are registry data: src/content.ts reads `meta` and the
+    // default export through import.meta.glob, so a metadata object export
+    // beside the component is the contract, not a fast-refresh violation.
+    files: ['src/content/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+  {
     // The splash chunk stays split: a static import of the component (9
     // ?raw glyphs) or its CSS from outside the gate silently re-merges them
     // into the root chunk. The gate's import() is the split; the barrel

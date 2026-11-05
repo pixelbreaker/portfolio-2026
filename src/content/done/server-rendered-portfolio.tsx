@@ -1,9 +1,13 @@
-// A component content page: metadata travels as named exports, the layout as
-// the default export. The page shell renders title and summary; this
-// component owns everything below them and can use any React feature.
-export const title = 'Choosing server rendering for the portfolio'
-export const summary =
-  'Why this portfolio uses TanStack Start and the Netlify server adapter instead of a static SPA rewrite.'
+// A component content page: metadata travels in the `meta` object (the .tsx
+// form of markdown frontmatter), the layout as the default export. The page
+// shell renders title and summary; this component owns everything below them.
+import type { ContentMeta } from '../../content'
+
+export const meta = {
+  title: 'Choosing server rendering for the portfolio',
+  summary:
+    'Why this portfolio uses TanStack Start and the Netlify server adapter instead of a static SPA rewrite.',
+} satisfies ContentMeta
 
 const tradeoffs = [
   {

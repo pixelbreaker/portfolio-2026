@@ -7,9 +7,8 @@ import {
 } from '../../components/Gallery/photos'
 import { Markdown } from '../../markdown'
 
+import type { ContentMeta } from '../../content'
 import alt from './rapha/alt.json'
-
-export const published = '2026-11-01'
 
 // The screenshots are 1280 wide, so the rendition widths stop there;
 // `withoutEnlargement` keeps sharp from inventing pixels, and png is the last
@@ -20,9 +19,11 @@ const renditions = import.meta.glob<PictureRendition>('./rapha/*.png', {
   query: '?format=avif;webp;png&w=640;960;1280&withoutEnlargement&as=picture',
 })
 
-export const title = 'Rapha.cc website'
-export const summary =
-  'Full site migration from monolith to composable commerce.'
+export const meta = {
+  title: 'Rapha.cc website',
+  summary: 'Full site migration from monolith to composable commerce.',
+  published: '2026-11-01',
+} satisfies ContentMeta
 
 export default function Rapha() {
   return (

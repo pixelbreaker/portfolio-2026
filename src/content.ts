@@ -8,7 +8,7 @@ export type ContentPage = {
   slug: string
   title: string
   summary: string
-  // ISO `YYYY-MM-DD` from frontmatter or a named export; null when absent or
+  // ISO `YYYY-MM-DD` from frontmatter or `meta`; null when absent or
   // malformed, which puts the page after every dated one in a listing.
   published: string | null
   body: ContentBody
@@ -21,14 +21,19 @@ export type ContentBody =
   | { kind: 'markdown'; source: string }
   | { kind: 'component'; component: ComponentType }
 
-// A .tsx content module declares its metadata beside the component:
-// `export const title`, `export const summary`, `export default Component`,
-// and optionally `export const published = 'YYYY-MM-DD'` for listing order.
+// Page metadata, declared as markdown frontmatter (`title:`, `summary:`,
+// `published:`) or as the `meta` object of a .tsx page — one shape, two files.
+export type ContentMeta = {
+  title?: string
+  summary?: string
+  published?: string
+}
+
+// A .tsx content module exports `meta` beside the component it exports by
+// default; `meta.published` drives listing order.
 export type ContentModule = {
   default: ComponentType
-  title: string
-  summary: string
-  published?: string
+  meta?: ContentMeta
 }
 
 // Both globs are eager and static: every page ships in the bundle, and adding
@@ -120,28 +125,33 @@ function pageIdFromPath(path: string): string | undefined {
 }
 
 function pageFromMarkdown(id: string, source: string): ContentPage {
-  const [section, slug] = splitId(id)
   const { data, body } = parseFrontmatter(source)
-  return {
-    section,
-    slug,
-    title: data.title ?? prettify(slug),
-    summary: data.summary ?? '',
-    // Only a real ISO date orders a listing; anything else is no date.
-    published: publishedDate(data.published),
-    body: { kind: 'markdown', source: body },
-  }
+  return pageFromMeta(id, data, { kind: 'markdown', source: body })
 }
 
 function pageFromModule(id: string, module: ContentModule): ContentPage {
+  return pageFromMeta(id, module.meta ?? {}, {
+    kind: 'component',
+    component: module.default,
+  })
+}
+
+// Frontmatter and `meta` land in the same builder, so a page reads the same
+// from a .md file, a .tsx file, and the registry.
+function pageFromMeta(
+  id: string,
+  meta: ContentMeta,
+  body: ContentBody,
+): ContentPage {
   const [section, slug] = splitId(id)
   return {
     section,
     slug,
-    title: module.title,
-    summary: module.summary,
-    published: publishedDate(module.published),
-    body: { kind: 'component', component: module.default },
+    title: meta.title ?? prettify(slug),
+    summary: meta.summary ?? '',
+    // Only a real ISO date orders a listing; anything else is no date.
+    published: publishedDate(meta.published),
+    body,
   }
 }
 
